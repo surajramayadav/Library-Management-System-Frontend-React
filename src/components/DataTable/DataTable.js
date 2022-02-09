@@ -39,6 +39,14 @@ export default function DataTable({ rows, columns, title }) {
     user_address: "",
   });
 
+  const [bookData, setBookData] = useState({
+    book_name: "",
+    book_isbn: "",
+    book_quantity: "",
+    book_author: "",
+    genre_type: "",
+  });
+
   // console.log("data", data);
   const handleClickOpen = (data) => {
     switch (title) {
@@ -50,7 +58,10 @@ export default function DataTable({ rows, columns, title }) {
         setdata(data);
         setOpen(true);
         break;
-
+      case "Book":
+        setdata(data);
+        setOpen(true);
+        break;
       default:
         break;
     }
@@ -72,7 +83,13 @@ export default function DataTable({ rows, columns, title }) {
         break;
       case "User":
         setUserData({
-          ...formData,
+          ...userData,
+          [evt.target.name]: value,
+        });
+        break;
+      case "Book":
+        setBookData({
+          ...bookData,
           [evt.target.name]: value,
         });
         break;
@@ -83,6 +100,7 @@ export default function DataTable({ rows, columns, title }) {
 
   React.useEffect(() => {
     if (data) {
+      // console.log(data)
       switch (title) {
         case "Admin":
           setFormData({
@@ -95,6 +113,14 @@ export default function DataTable({ rows, columns, title }) {
             user_name: data && data[1],
             user_phone: data && data[2],
             user_address: data && data[3],
+          });
+        case "Book":
+          setUserData({
+            book_name: data && data[1],
+            book_isbn: data && data[2],
+            book_quantity: data && data[3],
+            book_author: data && data[4],
+            genre_type: data && data[5],
           });
           break;
         default:
@@ -151,6 +177,9 @@ export default function DataTable({ rows, columns, title }) {
                         console.log(d[0]);
                         break;
                       case "User":
+                        console.log(d[0]);
+                        break;
+                      case "Book":
                         console.log(d[0]);
                         break;
 
@@ -306,6 +335,105 @@ export default function DataTable({ rows, columns, title }) {
                 sx={{ mt: 3, mb: 2 }}
                 onClick={() => {
                   console.log(formData);
+                  setOpen(false);
+                }}
+              >
+                Update {title}
+              </Button>
+            </div>
+          </Dialog>
+        </div>
+      )}
+
+      {title == "Book" && (
+        <div>
+          <Dialog
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
+            </div>
+
+            <DialogContent>
+              <div className={classes.root} autoComplete="off">
+                <TextField
+                  style={{ marginTop: 0 }}
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="book_name"
+                  label="Book Name"
+                  name="book_name"
+                  defaultValue={data && data[1]}
+                  // autoComplete="phone"
+                  onChange={handleChange}
+                />
+                <TextField
+                  style={{ marginTop: 20 }}
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="book_isbn"
+                  label="Book ISBN"
+                  name="book_isbn"
+                  defaultValue={data && data[2]}
+                  // autoComplete="phone"
+                  onChange={handleChange}
+                />
+                <TextField
+                  style={{ marginTop: 20 }}
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="book_quantity"
+                  label="Quantity"
+                  name="book_quantity"
+                  defaultValue={data && data[3]}
+                  // autoComplete="phone"
+                  onChange={handleChange}
+                />
+
+                <TextField
+                  style={{ marginTop: 20 }}
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="book_author"
+                  label="Author"
+                  name="book_author"
+                  defaultValue={data && data[4]}
+                  // autoComplete="phone"
+                  onChange={handleChange}
+                />
+
+                <TextField
+                  style={{ marginTop: 20 }}
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="genre_type"
+                  label="Genre"
+                  name="genre_type"
+                  defaultValue={data && data[5]}
+                  // autoComplete="phone"
+                  onChange={handleChange}
+                />
+              </div>
+            </DialogContent>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <Button
+                style={{ marginTop: 20, width: "90%", marginBottom: 30 }}
+                variant="contained"
+                color="primary"
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+                onClick={() => {
+                  console.log(userData);
                   setOpen(false);
                 }}
               >
