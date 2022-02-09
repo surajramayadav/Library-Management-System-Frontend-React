@@ -1,0 +1,36 @@
+.extended-card {
+  box-shadow: 0 1px 4px 0 rgb(0 0 0 / 14%);
+  padding: 20px 25px;
+  border-radius: 6;
+  background-color: white;
+}
+
+.extended-card-icon {
+  color: #fff;
+  /* background-color: #ffa726; */
+  height: 100%;
+  width: 3rem;
+}
+
+input[type="text"],
+input[type="time"],
+input[type="date"],
+input[type="datetime-local"],
+select.form-control {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #d2d2d2;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+input[type="text"]:focus,
+select.form-control:focus {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+.padding-form {
+  padding: 0px !important;
+}

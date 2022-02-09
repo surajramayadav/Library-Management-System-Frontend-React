@@ -1,0 +1,12 @@
+.MuiTableCell-root{
+    /* font-size: 1.5rem !important; */
+}
+
+.MUIDataTableHeadCell-data-54{
+    /* font-size: 1.5rem !important; */
+}
+ 
+.MuiTableCell-root > div:first-child{
+    text-align: center !important;
+}
+ 

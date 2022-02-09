@@ -1,0 +1,27 @@
+.navbar1 {
+  background-color: #fff;
+  height: 10vh;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+  z-index: 10000;
+  margin-bottom: 0px !important;
+  /* padding: 0rem 6rem;
+   */
+}
+
+.navbar-logo1 img {
+  height: 50px !important;
+  width: 100%;
+  margin-right: 10%;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+}
+.nav-item {
+  padding: 0 3rem;
+}
+.nav-item a{
+  text-decoration: none;
+}
