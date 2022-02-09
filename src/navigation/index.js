@@ -13,6 +13,9 @@ import EditProfile from "../pages/user/profile";
 import SearchBook from "../pages/user/searchBook";
 
 import "./navigation.css";
+import SuperAdmin from "../pages/admin/superAdmin";
+import User from "../pages/admin/user";
+import Book from "../pages/admin/book";
 
 export default function Navigation() {
   const login = useSelector((state) => state.login);
@@ -42,6 +45,9 @@ export default function Navigation() {
               {/* // Admin Route */}
 
               <Route exact path="/admin/home" component={Dashboard} />
+              <Route exact path="/admin/super" component={SuperAdmin} />
+              <Route exact path="/admin/user" component={User} />
+              <Route exact path="/admin/book" component={Book} />
             </div>
           </div>
         </div>

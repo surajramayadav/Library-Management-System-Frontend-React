@@ -58,7 +58,8 @@ export default function SearchBook() {
 
   return (
     <>
-      {loading && <Loading />}
+      {loading ? <Loading />
+      :
 
       <div style={{ margin: 50 }}>
         <Grid
@@ -91,6 +92,7 @@ export default function SearchBook() {
           </Grid>
         </Grid>
       </div>
+}
     </>
   );
 }

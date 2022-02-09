@@ -1,28 +1,22 @@
 import { Grid } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import Api from "../../../api";
 import DataTable from "../../../components/DataTable/DataTable";
 import Loading from "../../../components/Loading";
-
 const api = new Api();
 
-export default function IssuedBook() {
-  const login = useSelector((state) => state.login);
-  const { userData } = login;
-
+export default function Book() {
   const [loading, setloading] = useState(true);
 
-  const [issuedData, setissuedData] = useState();
+  const [book, setbook] = useState();
 
   const columns = [
     "Id",
-    "Issued Date",
-    "Return Date",
-    "Return Status",
     "Book Name",
-    "User Name",
-    "Admin",
+    "Book ISBN",
+    "Book Quantity",
+    "Book Author",
+    "Genre",
     {
       name: "Actions",
       options: {
@@ -32,39 +26,36 @@ export default function IssuedBook() {
     },
   ];
 
-  const getIssuedBookData = async () => {
+  const getBook = async () => {
     let changeToarray = [];
     setloading(true);
-    const issuedData = await api.Calls(
-      `issuedbook/user/${userData.user_id}`,
-      "GET"
-    );
-    if (issuedData.data.length > 0) {
-      issuedData.data.map((d, i) => {
+    const getbookData = await api.Calls(`book/`, "GET");
+    // console.log(countData);
+    if (getbookData.data.length > 0) {
+      getbookData.data.map((d, i) => {
         changeToarray.push({
           // id:i+1,
-          id: d.issuedbook_id,
-          issued_date: d.issued_date,
-          return_date: d.return_date,
-          return_status: d.return_status,
-          book: d.book_name,
-          user: d.user_name,
-          admin: d.admin_username,
+          id: d.book_id,
+          book_name: d.book_name,
+          book_isbn: d.book_isbn,
+          book_quantity: d.book_quantity,
+          book_author: d.book_author,
+          genre: d.genreModel.genre_type,
         });
       });
     }
     let arrayOfArrays =
       changeToarray && changeToarray.map((obj) => Object.values(obj));
     //  changeToarray=[...issuedData.data]
-    setissuedData(arrayOfArrays);
+    setbook(arrayOfArrays);
     console.log("arrayOfArrays", arrayOfArrays);
+
     setloading(false);
   };
 
   useEffect(() => {
-    getIssuedBookData();
+    getBook();
   }, []);
-  console.log(loading);
   return (
     <>
       {loading ? (
@@ -92,11 +83,7 @@ export default function IssuedBook() {
               style={{ height: "inherit" }}
             >
               {!loading && (
-                <DataTable
-                  rows={issuedData}
-                  columns={columns}
-                  title="Issued Book"
-                />
+                <DataTable rows={book} columns={columns} title="Book" />
               )}
             </Grid>
           </Grid>

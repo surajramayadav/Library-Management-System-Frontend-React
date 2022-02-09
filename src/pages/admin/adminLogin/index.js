@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import Api from "../../../api";
 import {
+  setadminData,
   setadminLogin,
   setuserData,
   setuserLogin,
@@ -49,8 +50,8 @@ export default function AdminLogin() {
   const [open, setOpen] = React.useState(false);
 
   const [formData, setFormData] = React.useState({
-    user_phone: "",
-    user_password: "",
+    admin_username: "",
+    admin_password: "",
   });
 
   function handleChange(evt) {
@@ -63,19 +64,19 @@ export default function AdminLogin() {
   }
 
   const handleLogin = async () => {
-    // try {
-    //   const loginData = await api.Calls("user/login", "POST", formData);
-    //   if (loginData.status == 200) {
-    //     dispatch(setuserLogin(true));
-    //     dispatch(setadminLogin(false));
-    //     dispatch(setuserData(loginData.data));
-    //     history.push("/user/home");
-    //   } else {
-    //     setmsg(loginData.msg.response.data.message);
-    //     setOpen(true);
-    //     console.log(loginData.msg.response.data.message);
-    //   }
-    // } catch (error) {}
+    try {
+      const loginData = await api.Calls("admin/login", "POST", formData);
+      if (loginData.status == 200) {
+        dispatch(setuserLogin(false));
+        dispatch(setadminLogin(true));
+        dispatch(setadminData(loginData.data));
+        history.push("/admin/home");
+      } else {
+        setmsg(loginData.msg.response.data.message);
+        setOpen(true);
+        console.log(loginData.msg.response.data.message);
+      }
+    } catch (error) {}
   };
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -122,9 +123,9 @@ export default function AdminLogin() {
             variant="outlined"
             required
             fullWidth
-            id="user_phone"
-            label="Phone Number"
-            name="user_phone"
+            id="admin_username"
+            label="Username"
+            name="admin_username"
             // autoComplete="phone"
             onChange={handleChange}
           />
@@ -133,10 +134,10 @@ export default function AdminLogin() {
             variant="outlined"
             required
             fullWidth
-            name="user_password"
+            name="admin_password"
             label="Password"
             type="password"
-            id="user_password"
+            id="admin_password"
             // autoComplete="new-password"
             onChange={handleChange}
           />

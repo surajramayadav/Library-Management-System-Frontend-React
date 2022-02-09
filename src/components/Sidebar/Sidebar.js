@@ -77,7 +77,7 @@ const Sidebar = () => {
         ) : (
           <>
             <MenuItem
-              onClick={() => history.push("/Users")}
+              onClick={() => history.push("/admin/home")}
               iconShape="circle"
               icon={<MdDashboard />}
             >
@@ -98,44 +98,28 @@ const Sidebar = () => {
               Return Book
             </MenuItem>
             <MenuItem
-              onClick={() => history.push("/Users")}
+              onClick={() => history.push("/admin/super")}
               iconShape="circle"
               icon={<MdDashboard />}
             >
               Admin
             </MenuItem>
             <MenuItem
-              onClick={() => history.push("/Users")}
+              onClick={() => history.push("/admin/user")}
               iconShape="circle"
               icon={<MdDashboard />}
             >
               User
             </MenuItem>
             <MenuItem
-              onClick={() => history.push("/Users")}
+              onClick={() => history.push("/admin/book")}
               iconShape="circle"
               icon={<MdDashboard />}
             >
               Book
             </MenuItem>
 
-            <SubMenu title="Report" icon={<GrStackOverflow />}>
-              <MenuItem
-                onClick={() => history.push("/Add-Vegitables")}
-                iconShape="round"
-                // icon={<HiDocumentText />}
-              >
-                Count of book
-              </MenuItem>
-
-              <MenuItem
-                onClick={() => history.push("/Show-Vegitables")}
-                iconShape="round"
-                // icon={<HiDocumentText />}
-              >
-                Book Return Today
-              </MenuItem>
-            </SubMenu>
+           
           </>
         )}
 
