@@ -7,7 +7,7 @@ import Loading from "../../../components/Loading";
 
 const api = new Api();
 
-export default function IssuedBook() {
+export default function ReturnBook() {
   const login = useSelector((state) => state.login);
   const { userData } = login;
 
@@ -23,22 +23,25 @@ export default function IssuedBook() {
     "Book Name",
     "User Name",
     "Admin",
-    // {
-    //   name: "Actions",
-    //   options: {
-    //     filter: false,
-    //     sort: false,
-    //   },
-    // },
+    "Book Id",
+    "User Id",
+    {
+      name: "Actions",
+      options: {
+        filter: false,
+        sort: false,
+      },
+    },
   ];
+  const [trigger, settrigger] = useState(false);
 
+  const handleTrigger = () => {
+    settrigger(!trigger);
+  };
   const getIssuedBookData = async () => {
     let changeToarray = [];
     setloading(true);
-    const issuedData = await api.Calls(
-      `issuedbook/user/${userData.user_id}`,
-      "GET"
-    );
+    const issuedData = await api.Calls(`issuedbook/`, "GET");
     if (issuedData.data.length > 0) {
       issuedData.data.map((d, i) => {
         changeToarray.push({
@@ -47,9 +50,11 @@ export default function IssuedBook() {
           issued_date: d.issued_date,
           return_date: d.return_date,
           return_status: d.return_status,
-          book: d.book_name,
-          user: d.user_name,
-          admin: d.admin_username,
+          book: d.bookModel.book_name,
+          user: d.userModel.user_name,
+          admin: d.adminModel.admin_username,
+          book_id:d.bookModel.book_id,
+          user_id:d.userModel.user_id
         });
       });
     }
@@ -63,7 +68,7 @@ export default function IssuedBook() {
 
   useEffect(() => {
     getIssuedBookData();
-  }, []);
+  }, [trigger]);
   console.log(loading);
   return (
     <>
@@ -93,9 +98,10 @@ export default function IssuedBook() {
             >
               {!loading && (
                 <DataTable
+                handleTrigger={handleTrigger}
                   rows={issuedData}
                   columns={columns}
-                  title="Issued Book"
+                  title="Return Book"
                 />
               )}
             </Grid>

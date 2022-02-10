@@ -5,18 +5,22 @@ import axios from 'axios';
 export const homeslice = createSlice({
   name: 'home',
   initialState: {
-    loading: false,
+   IssueBookId:null,
+   IssueUserId:null
     
   },
   reducers: {
-    setloading: (state, action) => {
-      state.loading = action.payload;
+    setIssueBookId: (state, action) => {
+      state.IssueBookId = action.payload;
+    },
+    setIssueUserId: (state, action) => {
+      state.IssueUserId = action.payload;
     },
   },
 });
 
 //actions
-export const { setloading } = homeslice.actions;
+export const { setIssueBookId,setIssueUserId } = homeslice.actions;
 
 
 export default homeslice.reducer;

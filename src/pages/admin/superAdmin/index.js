@@ -10,15 +10,33 @@ import {
   TextareaAutosize,
   TextField,
 } from "@material-ui/core";
+import Colors from "../../../utils/styles/colors";
+import { useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 const api = new Api();
 
 export default function SuperAdmin() {
   const [loading, setloading] = useState(true);
   const [open, setOpen] = React.useState(false);
   const [admin, setadmin] = useState();
+  const [exits, setexits] = useState(false);
+  const login = useSelector((state) => state.login);
+  const { adminData, adminLogin } = login;
+  const history = useHistory();
+
   const handleClose = () => {
     setOpen(false);
   };
+
+  useEffect(() => {
+    if (adminData.admin_role != "super") {
+      if (adminLogin) {
+        history.push("/admin/home");
+      } else {
+        history.push("/admin");
+      }
+    }
+  }, []);
 
   const columns = [
     "Id",
@@ -35,9 +53,22 @@ export default function SuperAdmin() {
   const [formData, setFormData] = useState({
     admin_username: "",
     admin_role: "",
-    admin_password:""
-    
+    admin_password: "",
   });
+
+  const checkBookExits = async (e) => {
+    if (e.target.value.length != 0) {
+      const isExits = await api.Calls(`admin/exits/${e.target.value}`, "GET");
+      // console.log(isExits.data);
+      setexits(isExits.data.success);
+    }
+  };
+
+  const [trigger, settrigger] = useState(false);
+
+  const handleTrigger = () => {
+    settrigger(!trigger);
+  };
 
   function handleChange(evt) {
     const value =
@@ -73,7 +104,7 @@ export default function SuperAdmin() {
 
   useEffect(() => {
     getAdmin();
-  }, []);
+  }, [trigger]);
 
   return (
     <>
@@ -82,7 +113,7 @@ export default function SuperAdmin() {
       ) : (
         <div>
           <div style={{ margin: 50 }}>
-            <div style={{display:'flex',justifyContent:'flex-end'}}>
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
               <Button
                 style={{ marginTop: 20, marginBottom: 0 }}
                 variant="contained"
@@ -91,7 +122,6 @@ export default function SuperAdmin() {
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
                 onClick={() => {
-                  
                   setOpen(true);
                 }}
               >
@@ -120,7 +150,12 @@ export default function SuperAdmin() {
                 style={{ height: "inherit" }}
               >
                 {!loading && (
-                  <DataTable rows={admin} columns={columns} title="Admin" />
+                  <DataTable
+                    handleTrigger={handleTrigger}
+                    rows={admin}
+                    columns={columns}
+                    title="Admin"
+                  />
                 )}
               </Grid>
             </Grid>
@@ -149,9 +184,17 @@ export default function SuperAdmin() {
                     name="admin_username"
                     // defaultValue={data && data[1]}
                     // autoComplete="phone"
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      handleChange(e);
+                      checkBookExits(e);
+                    }}
                   />
-                   <TextField
+                  {exits && (
+                    <label style={{ color: Colors.indianRed }}>
+                      Admin Already Exits
+                    </label>
+                  )}
+                  <TextField
                     style={{ marginTop: 20 }}
                     variant="outlined"
                     required
@@ -162,7 +205,8 @@ export default function SuperAdmin() {
                     // defaultValue={data && data[3]}
                     // autoComplete="phone"
                     onChange={handleChange}
-                  />                  <TextField
+                  />{" "}
+                  <TextField
                     style={{ marginTop: 20 }}
                     variant="outlined"
                     required
@@ -185,9 +229,25 @@ export default function SuperAdmin() {
                   type="submit"
                   fullWidth
                   variant="contained"
+                  disabled={exits}
                   sx={{ mt: 3, mb: 2 }}
-                  onClick={() => {
-                    console.log(formData);
+                  onClick={async () => {
+                    if (!exits) {
+                      const addAdmin = await api.Calls(
+                        `admin/`,
+                        "POST",
+                        formData
+                      );
+                      // console.log(addbook)
+                      if (addAdmin.status == 201) {
+                        handleTrigger();
+                        alert("Admin Added Successfully");
+                        setexits(false);
+                      } else {
+                        alert(addAdmin.msg.response.data.message);
+                      }
+                    }
+
                     setOpen(false);
                   }}
                 >

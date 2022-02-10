@@ -16,6 +16,10 @@ import {
   TextField,
 } from "@material-ui/core";
 import { setadminData } from "../../redux/slice/loginSlice";
+import { useHistory } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setIssueBookId, setIssueUserId } from "../../redux/slice/homeSlice";
+import Api from "../../api";
 
 let classes = {};
 
@@ -23,9 +27,17 @@ const options = {
   filterType: "textField",
   responsive: "scroll",
 };
+const api = new Api();
 
-export default function DataTable({ rows, columns, title }) {
+export default function DataTable({ rows, columns, title, handleTrigger }) {
   let state = {};
+  const history = useHistory();
+  const dispatch = useDispatch();
+  const home = useSelector((state) => state.home);
+  const login = useSelector((state) => state.login);
+  const { adminData } = login;
+  // const {adminData}=login
+  const { IssueBookId, IssueUserId } = home;
   const [open, setOpen] = React.useState(false);
   const [data, setdata] = useState();
   const [formData, setFormData] = useState({
@@ -71,32 +83,60 @@ export default function DataTable({ rows, columns, title }) {
     setOpen(false);
   };
 
-  function handleChange(evt) {
+  function handleChangeUser(evt) {
     const value =
       evt.target.type === "checkbox" ? evt.target.checked : evt.target.value;
-    switch (title) {
-      case "Admin":
-        setFormData({
-          ...formData,
-          [evt.target.name]: value,
-        });
-        break;
-      case "User":
-        setUserData({
-          ...userData,
-          [evt.target.name]: value,
-        });
-        break;
-      case "Book":
-        setBookData({
-          ...bookData,
-          [evt.target.name]: value,
-        });
-        break;
-      default:
-        break;
-    }
+    setUserData({
+      ...userData,
+      [evt.target.name]: value,
+    });
+    // console.log(userData);
   }
+
+  function handleChangeBook(evt) {
+    const value =
+      evt.target.type === "checkbox" ? evt.target.checked : evt.target.value;
+    setBookData({
+      ...bookData,
+      [evt.target.name]: value,
+    });
+  }
+
+  function handleChangeAdmin(evt) {
+    const value =
+      evt.target.type === "checkbox" ? evt.target.checked : evt.target.value;
+    setFormData({
+      ...formData,
+      [evt.target.name]: value,
+    });
+  }
+
+  // function handleChange(evt) {
+  //   const value =
+  //     evt.target.type === "checkbox" ? evt.target.checked : evt.target.value;
+  //   switch (title) {
+  //     case "Admin":
+  //       setFormData({
+  //         ...formData,
+  //         [evt.target.name]: value,
+  //       });
+  //       break;
+  //     case "User":
+  //       setUserData({
+  //         ...userData,
+  //         [evt.target.name]: value,
+  //       });
+  //       break;
+  //     case "Book":
+  //       setBookData({
+  //         ...bookData,
+  //         [evt.target.name]: value,
+  //       });
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // }
 
   React.useEffect(() => {
     if (data) {
@@ -115,7 +155,7 @@ export default function DataTable({ rows, columns, title }) {
             user_address: data && data[3],
           });
         case "Book":
-          setUserData({
+          setBookData({
             book_name: data && data[1],
             book_isbn: data && data[2],
             book_quantity: data && data[3],
@@ -151,7 +191,71 @@ export default function DataTable({ rows, columns, title }) {
                 <Button
                   color="primary"
                   size="large"
-                  onClick={() => handleClickOpen(d)}
+                  onClick={async () => {
+                    switch (title) {
+                      case "Return Book":
+                        // console.log(d[3])
+                        if (d[3] != "returned") {
+                          const data = {
+                            return_status: "returned",
+                            book_id: d[7],
+                            user_id: d[8],
+                          };
+                          const getIssueData = await api.Calls(
+                            `issuedbook/return`,
+                            "PUT",
+                            data
+                          );
+                          if (getIssueData.status == 200) {
+                            handleTrigger();
+                            alert("Book Returned Successfully");
+                          } else {
+                            alert(getIssueData.msg.response.data.message);
+                          }
+                        } else {
+                          alert("Book Is already Returned");
+                        }
+
+                        break;
+                      case "Select Book":
+                        if (d[3] > 0) {
+                          dispatch(setIssueBookId(d[0]));
+                          history.push("issue/issueuser");
+                          // console.log("issue", d);
+                        } else {
+                          alert("Book Not Available");
+                        }
+
+                        break;
+
+                      case "Select User":
+                        // dispatch(setIssueUserId(d[0]));
+                        const data = {
+                          admin_id: login.adminData.admin_id,
+                          book_id: IssueBookId,
+                          user_id: d[0],
+                        };
+                        const getIssueData = await api.Calls(
+                          `issuedbook/`,
+                          "POST",
+                          data
+                        );
+                        if (getIssueData.status == 201) {
+                          // handleTrigger();
+                          dispatch(setIssueBookId(null));
+                          alert("Book Issued  Successfully");
+                          history.push("return");
+                        } else {
+                          alert(getIssueData.msg.response.data.message);
+                        }
+                        // alert("Book Issued Successfully");
+                        // console.log("issueUser", d[0]);
+                        break;
+                      default:
+                        handleClickOpen(d);
+                        break;
+                    }
+                  }}
                 >
                   <IconContext.Provider>
                     <div
@@ -162,46 +266,87 @@ export default function DataTable({ rows, columns, title }) {
                         color: "white",
                       }}
                     >
-                      <EditIcon />
+                      {title == "Return Book" ? (
+                        "Return Book"
+                      ) : title == "Select Book" ? (
+                        "Select"
+                      ) : title == "Select User" ? (
+                        "Issua A Book"
+                      ) : (
+                        <EditIcon />
+                      )}
                     </div>
                   </IconContext.Provider>
                 </Button>
               </Grid>
-              <Grid item>
-                <Button
-                  color="secondary"
-                  size="large"
-                  onClick={() => {
-                    switch (title) {
-                      case "Admin":
-                        console.log(d[0]);
-                        break;
-                      case "User":
-                        console.log(d[0]);
-                        break;
-                      case "Book":
-                        console.log(d[0]);
-                        break;
+              {title != "Return Book" &&
+                title != "Select Book" &&
+                title != "Select User" && (
+                  <Grid item>
+                    <Button
+                      color="secondary"
+                      size="large"
+                      onClick={async () => {
+                        switch (title) {
+                          case "Admin":
+                            const getAdminData = await api.Calls(
+                              `admin/${d[0]}`,
+                              "DELETE"
+                            );
+                            if (getAdminData.status == 200) {
+                              handleTrigger();
+                              alert("Admin Deleted Successfully");
+                            } else {
+                              alert(getAdminData.msg.response.data.message);
+                            }
+                            break;
+                          case "User":
+                            //  console.log(d[0]);
+                            const getUserData = await api.Calls(
+                              `user/${d[0]}`,
+                              "DELETE"
+                            );
+                            if (getUserData.status == 200) {
+                              handleTrigger();
+                              alert("User Deleted Successfully");
+                            } else {
+                              alert(getUserData.msg.response.data.message);
+                            }
 
-                      default:
-                        break;
-                    }
-                  }}
-                >
-                  <IconContext.Provider>
-                    <div
-                      style={{
-                        padding: "1rem 1rem",
-                        backgroundColor: "#f44335",
-                        borderRadius: 3,
-                        color: "white",
+                            break;
+                          case "Book":
+                            const getBookData = await api.Calls(
+                              `book/${d[0]}`,
+                              "DELETE"
+                            );
+                            if (getBookData.status == 200) {
+                              handleTrigger();
+                              alert("Book Deleted Successfully");
+                            } else {
+                              alert(getBookData.msg.response.data.message);
+                            }
+                            break;
+
+                          default:
+                            break;
+                        }
                       }}
                     >
-                      <ClearIcon />
-                    </div>
-                  </IconContext.Provider>
-                </Button>
-              </Grid>
+                      <IconContext.Provider>
+                        <div
+                          style={{
+                            padding: "1rem 1rem",
+                            backgroundColor: "#f44335",
+                            borderRadius: 3,
+                            color: "white",
+                          }}
+                        >
+                          <ClearIcon />
+                        </div>
+                      </IconContext.Provider>
+                    </Button>
+                  </Grid>
+                )}
             </Grid>,
           ];
           // console.log(f);
@@ -230,12 +375,12 @@ export default function DataTable({ rows, columns, title }) {
                   variant="outlined"
                   required
                   fullWidth
-                  id="admin_username"
-                  label="Admin Username"
-                  name="admin_username"
+                  id="user_name"
+                  label="User Name"
+                  name="user_name"
                   defaultValue={data && data[1]}
                   // autoComplete="phone"
-                  onChange={handleChange}
+                  onChange={handleChangeUser}
                 />
                 <TextField
                   style={{ marginTop: 20 }}
@@ -247,7 +392,7 @@ export default function DataTable({ rows, columns, title }) {
                   name="user_phone"
                   defaultValue={data && data[2]}
                   // autoComplete="phone"
-                  onChange={handleChange}
+                  onChange={handleChangeUser}
                 />
                 <TextField
                   style={{ marginTop: 20 }}
@@ -259,7 +404,7 @@ export default function DataTable({ rows, columns, title }) {
                   name="user_address"
                   defaultValue={data && data[3]}
                   // autoComplete="phone"
-                  onChange={handleChange}
+                  onChange={handleChangeUser}
                 />
               </div>
             </DialogContent>
@@ -272,8 +417,19 @@ export default function DataTable({ rows, columns, title }) {
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
-                onClick={() => {
+                onClick={async () => {
                   console.log(userData);
+                  const getUserData = await api.Calls(
+                    `user/${data[0]}`,
+                    "PUT",
+                    userData
+                  );
+                  if (getUserData.status == 200) {
+                    handleTrigger();
+                    alert("User Updated Successfully");
+                  } else {
+                    alert(getUserData.msg.response.data.message);
+                  }
                   setOpen(false);
                 }}
               >
@@ -303,12 +459,12 @@ export default function DataTable({ rows, columns, title }) {
                   variant="outlined"
                   required
                   fullWidth
-                  id="user_name"
-                  label="Name"
-                  name="user_name"
+                  id="admin_username"
+                  label="Admin Username"
+                  name="admin_username"
                   defaultValue={data && data[1]}
                   // autoComplete="phone"
-                  onChange={handleChange}
+                  onChange={handleChangeAdmin}
                 />
                 <TextField
                   style={{ marginTop: 20 }}
@@ -320,7 +476,7 @@ export default function DataTable({ rows, columns, title }) {
                   name="admin_role"
                   defaultValue={data && data[2]}
                   // autoComplete="phone"
-                  onChange={handleChange}
+                  onChange={handleChangeAdmin}
                 />
               </div>
             </DialogContent>
@@ -333,8 +489,20 @@ export default function DataTable({ rows, columns, title }) {
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
-                onClick={() => {
-                  console.log(formData);
+                onClick={async () => {
+                  const getAdminData = await api.Calls(
+                    `admin/${data[0]}`,
+                    "PUT",
+                    formData
+                  );
+                  if (getAdminData.status == 200) {
+                    handleTrigger();
+                    alert("Admin Updated Successfully");
+                  } else {
+                    alert(getAdminData.msg.response.data.message);
+                  }
+                  // console.log(formData)
+
                   setOpen(false);
                 }}
               >
@@ -369,7 +537,7 @@ export default function DataTable({ rows, columns, title }) {
                   name="book_name"
                   defaultValue={data && data[1]}
                   // autoComplete="phone"
-                  onChange={handleChange}
+                  onChange={handleChangeBook}
                 />
                 <TextField
                   style={{ marginTop: 20 }}
@@ -381,7 +549,7 @@ export default function DataTable({ rows, columns, title }) {
                   name="book_isbn"
                   defaultValue={data && data[2]}
                   // autoComplete="phone"
-                  onChange={handleChange}
+                  onChange={handleChangeBook}
                 />
                 <TextField
                   style={{ marginTop: 20 }}
@@ -393,7 +561,7 @@ export default function DataTable({ rows, columns, title }) {
                   name="book_quantity"
                   defaultValue={data && data[3]}
                   // autoComplete="phone"
-                  onChange={handleChange}
+                  onChange={handleChangeBook}
                 />
 
                 <TextField
@@ -406,7 +574,7 @@ export default function DataTable({ rows, columns, title }) {
                   name="book_author"
                   defaultValue={data && data[4]}
                   // autoComplete="phone"
-                  onChange={handleChange}
+                  onChange={handleChangeBook}
                 />
 
                 <TextField
@@ -419,7 +587,7 @@ export default function DataTable({ rows, columns, title }) {
                   name="genre_type"
                   defaultValue={data && data[5]}
                   // autoComplete="phone"
-                  onChange={handleChange}
+                  onChange={handleChangeBook}
                 />
               </div>
             </DialogContent>
@@ -432,8 +600,19 @@ export default function DataTable({ rows, columns, title }) {
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
-                onClick={() => {
-                  console.log(userData);
+                onClick={async () => {
+                  const getBookData = await api.Calls(
+                    `book/${data[0]}`,
+                    "PUT",
+                    bookData
+                  );
+                  if (getBookData.status == 200) {
+                    handleTrigger();
+                    alert("Book Updated Successfully");
+                  } else {
+                    alert(getBookData.msg.response.data.message);
+                  }
+
                   setOpen(false);
                 }}
               >

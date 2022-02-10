@@ -10,6 +10,7 @@ import {
   TextareaAutosize,
   TextField,
 } from "@material-ui/core";
+import Colors from "../../../utils/styles/colors";
 
 const api = new Api();
 
@@ -18,6 +19,7 @@ export default function Book() {
 
   const [book, setbook] = useState();
   const [open, setOpen] = React.useState(false);
+  const [exits, setexits] = useState(false);
 
   const columns = [
     "Id",
@@ -34,6 +36,21 @@ export default function Book() {
       },
     },
   ];
+
+  const checkBookExits = async (e) => {
+    if(e.target.value.length != 0){
+      const isExits = await api.Calls(`book/exits/${e.target.value}`, "GET");
+      // console.log(isExits.data);
+      setexits(isExits.data.success);
+    }
+    
+  };
+
+  const [trigger, settrigger] = useState(false);
+
+  const handleTrigger = () => {
+    settrigger(!trigger);
+  };
 
   function handleChange(evt) {
     const value =
@@ -84,7 +101,7 @@ export default function Book() {
 
   useEffect(() => {
     getBook();
-  }, []);
+  }, [trigger]);
   return (
     <>
       {loading ? (
@@ -128,7 +145,12 @@ export default function Book() {
                 style={{ height: "inherit" }}
               >
                 {!loading && (
-                  <DataTable rows={book} columns={columns} title="Book" />
+                  <DataTable
+                    handleTrigger={handleTrigger}
+                    rows={book}
+                    columns={columns}
+                    title="Book"
+                  />
                 )}
               </Grid>
             </Grid>
@@ -156,20 +178,30 @@ export default function Book() {
                     name="book_name"
                     // defaultValue={data && data[1]}
                     // autoComplete="phone"
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      handleChange(e);
+                      checkBookExits(e);
+                    }}
                   />
-                  <TextField
-                    style={{ marginTop: 20 }}
-                    variant="outlined"
-                    required
-                    fullWidth
-                    id="book_isbn"
-                    label="Book ISBN"
-                    name="book_isbn"
-                    // defaultValue={data && data[2]}
-                    // autoComplete="phone"
-                    onChange={handleChange}
-                  />
+                  {exits && (
+                    <label style={{ color: Colors.indianRed }}>
+                      Book Already Exits
+                    </label>
+                  )}
+                  {!exits && (
+                    <TextField
+                      style={{ marginTop: 20 }}
+                      variant="outlined"
+                      required
+                      fullWidth
+                      id="book_isbn"
+                      label="Book ISBN"
+                      name="book_isbn"
+                      // defaultValue={data && data[2]}
+                      // autoComplete="phone"
+                      onChange={handleChange}
+                    />
+                  )}
                   <TextField
                     style={{ marginTop: 20 }}
                     variant="outlined"
@@ -183,31 +215,35 @@ export default function Book() {
                     onChange={handleChange}
                   />
 
-                  <TextField
-                    style={{ marginTop: 20 }}
-                    variant="outlined"
-                    required
-                    fullWidth
-                    id="book_author"
-                    label="Author"
-                    name="book_author"
-                    // defaultValue={data && data[4]}
-                    // autoComplete="phone"
-                    onChange={handleChange}
-                  />
-
-                  <TextField
-                    style={{ marginTop: 20 }}
-                    variant="outlined"
-                    required
-                    fullWidth
-                    id="genre_type"
-                    label="Genre"
-                    name="genre_type"
-                    // defaultValue={data && data[5]}
-                    // autoComplete="phone"
-                    onChange={handleChange}
-                  />
+                  {!exits && (
+                    <>
+                      {" "}
+                      <TextField
+                        style={{ marginTop: 20 }}
+                        variant="outlined"
+                        required
+                        fullWidth
+                        id="book_author"
+                        label="Author"
+                        name="book_author"
+                        // defaultValue={data && data[4]}
+                        // autoComplete="phone"
+                        onChange={handleChange}
+                      />
+                      <TextField
+                        style={{ marginTop: 20 }}
+                        variant="outlined"
+                        required
+                        fullWidth
+                        id="genre_type"
+                        label="Genre"
+                        name="genre_type"
+                        // defaultValue={data && data[5]}
+                        // autoComplete="phone"
+                        onChange={handleChange}
+                      />
+                    </>
+                  )}
                 </div>
               </DialogContent>
               <div style={{ display: "flex", justifyContent: "center" }}>
@@ -219,8 +255,40 @@ export default function Book() {
                   fullWidth
                   variant="contained"
                   sx={{ mt: 3, mb: 2 }}
-                  onClick={() => {
-                    console.log(formData);
+                  onClick={async () => {
+                    if (exits) {
+                      const data = {
+                        book_name: formData.book_name,
+                        book_quantity: formData.book_quantity,
+                      };
+                      const bookUpdate = await api.Calls(
+                        `book/quantity`,
+                        "PUT",
+                        data
+                      );
+                      if (bookUpdate.status == 200) {
+                        handleTrigger();
+                        alert("Book Updated Successfully");
+                        setexits(false);
+                      } else {
+                        alert(bookUpdate.msg.response.data.message);
+                      }
+                    } else {
+                      const addbook = await api.Calls(
+                        `book/`,
+                        "POST",
+                        formData
+                      );
+                      // console.log(addbook)
+                      if (addbook.status == 201) {
+                        handleTrigger();
+                        alert("Book Added Successfully");
+                        setexits(false);
+                      } else {
+                        alert(addbook.msg.response.data.message);
+                      }
+                    }
+                    // console.log(formData);
                     setOpen(false);
                   }}
                 >

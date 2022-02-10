@@ -155,10 +155,17 @@ export default function AdminLogin() {
             Sign In
           </Button>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 5 }} >
-            <Link href="/" variant="body2">
-              if you are User ? Sign in
-            </Link>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginTop: 5,
+            }}
+            onClick={() => {
+              history.push("/");
+            }}
+          >
+            <Link variant="body2">if you are User ? Sign in</Link>
           </div>
         </Box>
       </div>

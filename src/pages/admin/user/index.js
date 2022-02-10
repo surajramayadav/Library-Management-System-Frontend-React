@@ -8,8 +8,9 @@ import {
   DialogContent,
   DialogTitle,
   TextareaAutosize,
-  TextField
+  TextField,
 } from "@material-ui/core";
+import Colors from "../../../utils/styles/colors";
 
 const api = new Api();
 
@@ -18,6 +19,14 @@ export default function User() {
   const [open, setOpen] = React.useState(false);
 
   const [user, setuser] = useState();
+
+  const [exits, setexits] = useState(false);
+
+  const [trigger, settrigger] = useState(false);
+
+  const handleTrigger = () => {
+    settrigger(!trigger);
+  };
 
   const handleClose = () => {
     setOpen(false);
@@ -35,12 +44,11 @@ export default function User() {
       },
     },
   ];
-
   const [formData, setFormData] = useState({
     user_name: "",
     user_phone: "",
     user_address: "",
-    user_password: "",
+    user_password:""
   });
 
   function handleChange(evt) {
@@ -77,9 +85,17 @@ export default function User() {
     setloading(false);
   };
 
+  const checkUserExits = async (e) => {
+    if (e.target.value.length != 0) {
+      const isExits = await api.Calls(`user/exits/${e.target.value}`, "GET");
+      // console.log(isExits.data);
+      setexits(isExits.data.success);
+    }
+  };
+
   useEffect(() => {
     getUser();
-  }, []);
+  }, [trigger]);
   return (
     <>
       {loading ? (
@@ -87,21 +103,21 @@ export default function User() {
       ) : (
         <div>
           <div style={{ margin: 50 }}>
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button
-              style={{ marginTop: 20, marginBottom: 0 }}
-              variant="contained"
-              color="primary"
-              type="submit"
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              onClick={() => {
-                setOpen(true);
-              }}
-            >
-              Add User
-            </Button>
-          </div>
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <Button
+                style={{ marginTop: 20, marginBottom: 0 }}
+                variant="contained"
+                color="primary"
+                type="submit"
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+                onClick={() => {
+                  setOpen(true);
+                }}
+              >
+                Add User
+              </Button>
+            </div>
             <Grid
               container
               direction="row"
@@ -123,7 +139,12 @@ export default function User() {
                 style={{ height: "inherit" }}
               >
                 {!loading && (
-                  <DataTable rows={user} columns={columns} title="User" />
+                  <DataTable
+                    handleTrigger={handleTrigger}
+                    rows={user}
+                    columns={columns}
+                    title="User"
+                  />
                 )}
               </Grid>
             </Grid>
@@ -163,9 +184,17 @@ export default function User() {
                       name="user_phone"
                       // defaultValue={data && data[3]}
                       // autoComplete="phone"
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        handleChange(e);
+                        checkUserExits(e);
+                      }}
                     />
-                     <TextField
+                    {exits && (
+                      <label style={{ color: Colors.indianRed }}>
+                        Phone Number Already Exits
+                      </label>
+                    )}
+                    <TextField
                       style={{ marginTop: 20 }}
                       variant="outlined"
                       required
@@ -184,9 +213,9 @@ export default function User() {
                       fullWidth
                       type="password"
                       id="user_password"
-                      label="Password"
+                      label="User Password"
                       name="user_password"
-                      // defaultValue={data && data[2]}
+                      // defaultValue={data && data[3]}
                       // autoComplete="phone"
                       onChange={handleChange}
                     />
@@ -201,8 +230,21 @@ export default function User() {
                     fullWidth
                     variant="contained"
                     sx={{ mt: 3, mb: 2 }}
-                    onClick={() => {
+                    disabled={exits ? true : false}
+                    onClick={async () => {
                       console.log(formData);
+                      const addUser = await api.Calls(
+                        `user/`,
+                        "POST",
+                        formData
+                      );
+                      console.log(addUser);
+                      if (addUser.status == 201) {
+                        handleTrigger()
+                        alert("User Successfully Added");
+                      } else {
+                        alert(addUser.msg.response.data.message);
+                      }
                       setOpen(false);
                     }}
                   >

@@ -13,7 +13,12 @@ import React from "react";
 import "./Sidebar.css";
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setadminData, setadminLogin, setuserData, setuserLogin } from "../../redux/slice/loginSlice";
+import {
+  setadminData,
+  setadminLogin,
+  setuserData,
+  setuserLogin,
+} from "../../redux/slice/loginSlice";
 
 const Sidebar = () => {
   const history = useHistory();
@@ -25,7 +30,7 @@ const Sidebar = () => {
   };
 
   const login = useSelector((state) => state.login);
-  const { userLogin, adminLogin } = login;
+  const { userLogin, adminLogin, adminData } = login;
   return (
     <ProSidebar collapsed={toggleSidebar}>
       <Menu iconShape="square">
@@ -84,26 +89,28 @@ const Sidebar = () => {
               Dashboard
             </MenuItem>
             <MenuItem
-              onClick={() => history.push("/Users")}
+              onClick={() => history.push("/admin/issue")}
               iconShape="circle"
               icon={<MdDashboard />}
             >
               Issue A Book
             </MenuItem>
             <MenuItem
-              onClick={() => history.push("/Users")}
+              onClick={() => history.push("/admin/issue/return")}
               iconShape="circle"
               icon={<MdDashboard />}
             >
               Return Book
             </MenuItem>
-            <MenuItem
-              onClick={() => history.push("/admin/super")}
-              iconShape="circle"
-              icon={<MdDashboard />}
-            >
-              Admin
-            </MenuItem>
+            {adminData.admin_role == "super" && (
+              <MenuItem
+                onClick={() => history.push("/admin/super")}
+                iconShape="circle"
+                icon={<MdDashboard />}
+              >
+                Admin
+              </MenuItem>
+            )}
             <MenuItem
               onClick={() => history.push("/admin/user")}
               iconShape="circle"
@@ -119,21 +126,27 @@ const Sidebar = () => {
               Book
             </MenuItem>
 
-           
+            <MenuItem
+              onClick={() => history.push("/admin/change-password")}
+              iconShape="circle"
+              icon={<MdDashboard />}
+            >
+              Change Password
+            </MenuItem>
           </>
         )}
 
         <MenuItem
           onClick={() => {
-            if(userLogin){
-              history.push("/")
-            }else{
-              history.push("/admin")
+            if (userLogin) {
+              history.push("/");
+            } else {
+              history.push("/admin");
             }
-            dispatch(setuserLogin(false))
-            dispatch(setadminLogin(false))
-            dispatch(setuserData([]))
-            dispatch(setadminData([]))
+            dispatch(setuserLogin(false));
+            dispatch(setadminLogin(false));
+            dispatch(setuserData([]));
+            dispatch(setadminData([]));
           }}
           iconShape="circle"
           icon={<MdDashboard />}

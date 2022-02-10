@@ -1,70 +1,58 @@
-import { Grid } from "@material-ui/core";
+import { Button, Grid } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import Api from "../../../api";
 import DataTable from "../../../components/DataTable/DataTable";
 import Loading from "../../../components/Loading";
 
 const api = new Api();
 
-export default function IssuedBook() {
-  const login = useSelector((state) => state.login);
-  const { userData } = login;
-
+export default function IssueUser() {
   const [loading, setloading] = useState(true);
 
-  const [issuedData, setissuedData] = useState();
+  const [user, setuser] = useState();
 
   const columns = [
     "Id",
-    "Issued Date",
-    "Return Date",
-    "Return Status",
-    "Book Name",
-    "User Name",
-    "Admin",
-    // {
-    //   name: "Actions",
-    //   options: {
-    //     filter: false,
-    //     sort: false,
-    //   },
-    // },
+    "User name",
+    "Phone Number",
+    "Address",
+    {
+      name: "Actions",
+      options: {
+        filter: false,
+        sort: false,
+      },
+    },
   ];
 
-  const getIssuedBookData = async () => {
+  const getUser = async () => {
     let changeToarray = [];
     setloading(true);
-    const issuedData = await api.Calls(
-      `issuedbook/user/${userData.user_id}`,
-      "GET"
-    );
-    if (issuedData.data.length > 0) {
-      issuedData.data.map((d, i) => {
+    const getUserData = await api.Calls(`user/`, "GET");
+    // console.log(countData);
+    if (getUserData.data.length > 0) {
+      getUserData.data.map((d, i) => {
         changeToarray.push({
           // id:i+1,
-          id: d.issuedbook_id,
-          issued_date: d.issued_date,
-          return_date: d.return_date,
-          return_status: d.return_status,
-          book: d.book_name,
-          user: d.user_name,
-          admin: d.admin_username,
+          id: d.user_id,
+          name: d.user_name,
+          phone: d.user_phone,
+          address: d.user_address,
         });
       });
     }
     let arrayOfArrays =
       changeToarray && changeToarray.map((obj) => Object.values(obj));
     //  changeToarray=[...issuedData.data]
-    setissuedData(arrayOfArrays);
+    setuser(arrayOfArrays);
     console.log("arrayOfArrays", arrayOfArrays);
+
     setloading(false);
   };
 
   useEffect(() => {
-    getIssuedBookData();
+    getUser();
   }, []);
-  console.log(loading);
   return (
     <>
       {loading ? (
@@ -92,11 +80,7 @@ export default function IssuedBook() {
               style={{ height: "inherit" }}
             >
               {!loading && (
-                <DataTable
-                  rows={issuedData}
-                  columns={columns}
-                  title="Issued Book"
-                />
+                <DataTable rows={user} columns={columns} title="Select User" />
               )}
             </Grid>
           </Grid>

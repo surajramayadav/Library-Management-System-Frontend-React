@@ -147,17 +147,23 @@ export default function UserLogin() {
             color="primary"
             type="submit"
             fullWidth
-         
             sx={{ mt: 3, mb: 2 }}
             onClick={() => handleLogin()}
           >
             Sign In
           </Button>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 5 }} >
-            <Link href="/admin" variant="body2">
-              if you are Admin ? Sign in
-            </Link>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginTop: 5,
+            }}
+            onClick={() => {
+              history.push("/admin");
+            }}
+          >
+            <Link variant="body2">if you are Admin ? Sign in</Link>
           </div>
         </Box>
       </div>
