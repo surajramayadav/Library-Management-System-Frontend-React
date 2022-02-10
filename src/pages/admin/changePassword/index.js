@@ -68,7 +68,9 @@ export default function AdminChangePassword() {
           setOpen(true);
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <Container component="main" maxWidth="xs" style={{ marginTop: 50 }}>

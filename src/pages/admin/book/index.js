@@ -38,12 +38,13 @@ export default function Book() {
   ];
 
   const checkBookExits = async (e) => {
-    if(e.target.value.length != 0){
-      const isExits = await api.Calls(`book/exits/${e.target.value}`, "GET");
-      // console.log(isExits.data);
-      setexits(isExits.data.success);
-    }
-    
+    try {
+      if (e.target.value.length != 0) {
+        const isExits = await api.Calls(`book/exits/${e.target.value}`, "GET");
+        // console.log(isExits.data);
+        setexits(isExits.data.success);
+      }
+    } catch (error) {}
   };
 
   const [trigger, settrigger] = useState(false);
@@ -75,27 +76,30 @@ export default function Book() {
   const getBook = async () => {
     let changeToarray = [];
     setloading(true);
-    const getbookData = await api.Calls(`book/`, "GET");
-    // console.log(countData);
-    if (getbookData.data.length > 0) {
-      getbookData.data.map((d, i) => {
-        changeToarray.push({
-          // id:i+1,
-          id: d.book_id,
-          book_name: d.book_name,
-          book_isbn: d.book_isbn,
-          book_quantity: d.book_quantity,
-          book_author: d.book_author,
-          genre: d.genreModel.genre_type,
+    try {
+      const getbookData = await api.Calls(`book/`, "GET");
+      // console.log(countData);
+      if (getbookData.data.length > 0) {
+        getbookData.data.map((d, i) => {
+          changeToarray.push({
+            // id:i+1,
+            id: d.book_id,
+            book_name: d.book_name,
+            book_isbn: d.book_isbn,
+            book_quantity: d.book_quantity,
+            book_author: d.book_author,
+            genre: d.genreModel.genre_type,
+          });
         });
-      });
+      }
+      let arrayOfArrays =
+        changeToarray && changeToarray.map((obj) => Object.values(obj));
+      //  changeToarray=[...issuedData.data]
+      setbook(arrayOfArrays);
+      console.log("arrayOfArrays", arrayOfArrays);
+    } catch (error) {
+      console.log(error);
     }
-    let arrayOfArrays =
-      changeToarray && changeToarray.map((obj) => Object.values(obj));
-    //  changeToarray=[...issuedData.data]
-    setbook(arrayOfArrays);
-    console.log("arrayOfArrays", arrayOfArrays);
-
     setloading(false);
   };
 
@@ -256,40 +260,44 @@ export default function Book() {
                   variant="contained"
                   sx={{ mt: 3, mb: 2 }}
                   onClick={async () => {
-                    if (exits) {
-                      const data = {
-                        book_name: formData.book_name,
-                        book_quantity: formData.book_quantity,
-                      };
-                      const bookUpdate = await api.Calls(
-                        `book/quantity`,
-                        "PUT",
-                        data
-                      );
-                      if (bookUpdate.status == 200) {
-                        handleTrigger();
-                        alert("Book Updated Successfully");
-                        setexits(false);
+                    try {
+                      if (exits) {
+                        const data = {
+                          book_name: formData.book_name,
+                          book_quantity: formData.book_quantity,
+                        };
+                        const bookUpdate = await api.Calls(
+                          `book/quantity`,
+                          "PUT",
+                          data
+                        );
+                        if (bookUpdate.status == 200) {
+                          handleTrigger();
+                          alert("Book Updated Successfully");
+                          setexits(false);
+                        } else {
+                          alert(bookUpdate.msg.response.data.message);
+                        }
                       } else {
-                        alert(bookUpdate.msg.response.data.message);
+                        const addbook = await api.Calls(
+                          `book/`,
+                          "POST",
+                          formData
+                        );
+                        // console.log(addbook)
+                        if (addbook.status == 201) {
+                          handleTrigger();
+                          alert("Book Added Successfully");
+                          setexits(false);
+                        } else {
+                          alert(addbook.msg.response.data.message);
+                        }
                       }
-                    } else {
-                      const addbook = await api.Calls(
-                        `book/`,
-                        "POST",
-                        formData
-                      );
-                      // console.log(addbook)
-                      if (addbook.status == 201) {
-                        handleTrigger();
-                        alert("Book Added Successfully");
-                        setexits(false);
-                      } else {
-                        alert(addbook.msg.response.data.message);
-                      }
+                      // console.log(formData);
+                      setOpen(false);
+                    } catch (error) {
+                      console.log(error);
                     }
-                    // console.log(formData);
-                    setOpen(false);
                   }}
                 >
                   Add Book

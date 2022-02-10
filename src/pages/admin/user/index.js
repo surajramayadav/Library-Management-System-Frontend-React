@@ -48,7 +48,7 @@ export default function User() {
     user_name: "",
     user_phone: "",
     user_address: "",
-    user_password:""
+    user_password: "",
   });
 
   function handleChange(evt) {
@@ -63,33 +63,40 @@ export default function User() {
   const getUser = async () => {
     let changeToarray = [];
     setloading(true);
-    const getUserData = await api.Calls(`user/`, "GET");
-    // console.log(countData);
-    if (getUserData.data.length > 0) {
-      getUserData.data.map((d, i) => {
-        changeToarray.push({
-          // id:i+1,
-          id: d.user_id,
-          name: d.user_name,
-          phone: d.user_phone,
-          address: d.user_address,
+    try {
+      const getUserData = await api.Calls(`user/`, "GET");
+      // console.log(countData);
+      if (getUserData.data.length > 0) {
+        getUserData.data.map((d, i) => {
+          changeToarray.push({
+            // id:i+1,
+            id: d.user_id,
+            name: d.user_name,
+            phone: d.user_phone,
+            address: d.user_address,
+          });
         });
-      });
+      }
+      let arrayOfArrays =
+        changeToarray && changeToarray.map((obj) => Object.values(obj));
+      //  changeToarray=[...issuedData.data]
+      setuser(arrayOfArrays);
+      console.log("arrayOfArrays", arrayOfArrays);
+    } catch (error) {
+      console.log(error);
     }
-    let arrayOfArrays =
-      changeToarray && changeToarray.map((obj) => Object.values(obj));
-    //  changeToarray=[...issuedData.data]
-    setuser(arrayOfArrays);
-    console.log("arrayOfArrays", arrayOfArrays);
-
     setloading(false);
   };
 
   const checkUserExits = async (e) => {
-    if (e.target.value.length != 0) {
-      const isExits = await api.Calls(`user/exits/${e.target.value}`, "GET");
-      // console.log(isExits.data);
-      setexits(isExits.data.success);
+    try {
+      if (e.target.value.length != 0) {
+        const isExits = await api.Calls(`user/exits/${e.target.value}`, "GET");
+        // console.log(isExits.data);
+        setexits(isExits.data.success);
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -232,20 +239,24 @@ export default function User() {
                     sx={{ mt: 3, mb: 2 }}
                     disabled={exits ? true : false}
                     onClick={async () => {
-                      console.log(formData);
-                      const addUser = await api.Calls(
-                        `user/`,
-                        "POST",
-                        formData
-                      );
-                      console.log(addUser);
-                      if (addUser.status == 201) {
-                        handleTrigger()
-                        alert("User Successfully Added");
-                      } else {
-                        alert(addUser.msg.response.data.message);
+                      try {
+                        console.log(formData);
+                        const addUser = await api.Calls(
+                          `user/`,
+                          "POST",
+                          formData
+                        );
+                        console.log(addUser);
+                        if (addUser.status == 201) {
+                          handleTrigger();
+                          alert("User Successfully Added");
+                        } else {
+                          alert(addUser.msg.response.data.message);
+                        }
+                        setOpen(false);
+                      } catch (error) {
+                        console.log(error);
                       }
-                      setOpen(false);
                     }}
                   >
                     Add User

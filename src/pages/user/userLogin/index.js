@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import Api from "../../../api";
 import {
+  setadminData,
   setadminLogin,
   setuserData,
   setuserLogin,
@@ -69,13 +70,16 @@ export default function UserLogin() {
         dispatch(setuserLogin(true));
         dispatch(setadminLogin(false));
         dispatch(setuserData(loginData.data));
+        dispatch(setadminData([]));
         history.push("/user/home");
       } else {
         setmsg(loginData.msg.response.data.message);
         setOpen(true);
         console.log(loginData.msg.response.data.message);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -122,6 +126,7 @@ export default function UserLogin() {
             variant="outlined"
             required
             fullWidth
+            type="number"
             id="user_phone"
             label="Phone Number"
             name="user_phone"

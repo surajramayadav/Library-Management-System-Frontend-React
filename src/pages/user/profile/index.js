@@ -14,7 +14,6 @@ import Api from "../../../api";
 import { setuserData } from "../../../redux/slice/loginSlice";
 import Colors from "../../../utils/styles/colors";
 
-
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -67,11 +66,13 @@ export default function EditProfile() {
         setOpen(true);
         console.log(updatedData.msg.response.data.message);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
-    <Container component="main" maxWidth="xs" style={{marginTop:50}}>
+    <Container component="main" maxWidth="xs" style={{ marginTop: 50 }}>
       <CssBaseline />
       <div
         style={{
@@ -81,8 +82,8 @@ export default function EditProfile() {
           marginBottom: 50,
         }}
       >
-         <div style={{ display: "flex", justifyContent: "center" }}>
-         <div
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <div
             style={{
               borderWidth: 1,
               borderRadius: 50,
@@ -96,14 +97,14 @@ export default function EditProfile() {
           >
             <BsFillLockFill size={50} color={Colors.white} />
           </div>
-          </div>
-        <Typography component="h1" variant="h5" style={{marginTop:20}}>
+        </div>
+        <Typography component="h1" variant="h5" style={{ marginTop: 20 }}>
           Edit Profile
         </Typography>
         <Box noValidate sx={{ mt: 3 }}>
           <TextField
-          style={{marginTop:20}}
-           variant="outlined"
+            style={{ marginTop: 20 }}
+            variant="outlined"
             autoComplete="given-name"
             name="user_name"
             required
@@ -116,7 +117,7 @@ export default function EditProfile() {
           />
 
           <TextField
-           variant="outlined"
+            variant="outlined"
             style={{ marginTop: 20 }}
             required
             fullWidth
@@ -131,7 +132,7 @@ export default function EditProfile() {
 
           <Grid item xs={12}>
             <TextField
-             variant="outlined"
+              variant="outlined"
               style={{ marginTop: 20 }}
               id="user_address"
               label="Address"
@@ -145,18 +146,17 @@ export default function EditProfile() {
           </Grid>
 
           <Button
-           variant="contained"
-           color="primary"
+            variant="contained"
+            color="primary"
             type="submit"
             fullWidth
-            style={{marginTop:20}}
+            style={{ marginTop: 20 }}
             sx={{ mt: 3, mb: 2 }}
             onClick={() => handleUpdate()}
           >
             Update
           </Button>
         </Box>
-        
       </div>
 
       <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>

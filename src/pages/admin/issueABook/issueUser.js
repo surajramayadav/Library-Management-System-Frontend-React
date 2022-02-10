@@ -28,25 +28,28 @@ export default function IssueUser() {
   const getUser = async () => {
     let changeToarray = [];
     setloading(true);
-    const getUserData = await api.Calls(`user/`, "GET");
-    // console.log(countData);
-    if (getUserData.data.length > 0) {
-      getUserData.data.map((d, i) => {
-        changeToarray.push({
-          // id:i+1,
-          id: d.user_id,
-          name: d.user_name,
-          phone: d.user_phone,
-          address: d.user_address,
+    try {
+      const getUserData = await api.Calls(`user/`, "GET");
+      // console.log(countData);
+      if (getUserData.data.length > 0) {
+        getUserData.data.map((d, i) => {
+          changeToarray.push({
+            // id:i+1,
+            id: d.user_id,
+            name: d.user_name,
+            phone: d.user_phone,
+            address: d.user_address,
+          });
         });
-      });
+      }
+      let arrayOfArrays =
+        changeToarray && changeToarray.map((obj) => Object.values(obj));
+      //  changeToarray=[...issuedData.data]
+      setuser(arrayOfArrays);
+      console.log("arrayOfArrays", arrayOfArrays);
+    } catch (error) {
+      console.log(error);
     }
-    let arrayOfArrays =
-      changeToarray && changeToarray.map((obj) => Object.values(obj));
-    //  changeToarray=[...issuedData.data]
-    setuser(arrayOfArrays);
-    console.log("arrayOfArrays", arrayOfArrays);
-
     setloading(false);
   };
 

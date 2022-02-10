@@ -61,21 +61,25 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
 
   // console.log("data", data);
   const handleClickOpen = (data) => {
-    switch (title) {
-      case "Admin":
-        setdata(data);
-        setOpen(true);
-        break;
-      case "User":
-        setdata(data);
-        setOpen(true);
-        break;
-      case "Book":
-        setdata(data);
-        setOpen(true);
-        break;
-      default:
-        break;
+    try {
+      switch (title) {
+        case "Admin":
+          setdata(data);
+          setOpen(true);
+          break;
+        case "User":
+          setdata(data);
+          setOpen(true);
+          break;
+        case "Book":
+          setdata(data);
+          setOpen(true);
+          break;
+        default:
+          break;
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -139,33 +143,37 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
   // }
 
   React.useEffect(() => {
-    if (data) {
-      // console.log(data)
-      switch (title) {
-        case "Admin":
-          setFormData({
-            admin_username: data && data[1],
-            admin_role: data && data[2],
-          });
-          break;
-        case "User":
-          setUserData({
-            user_name: data && data[1],
-            user_phone: data && data[2],
-            user_address: data && data[3],
-          });
-        case "Book":
-          setBookData({
-            book_name: data && data[1],
-            book_isbn: data && data[2],
-            book_quantity: data && data[3],
-            book_author: data && data[4],
-            genre_type: data && data[5],
-          });
-          break;
-        default:
-          break;
+    try {
+      if (data) {
+        // console.log(data)
+        switch (title) {
+          case "Admin":
+            setFormData({
+              admin_username: data && data[1],
+              admin_role: data && data[2],
+            });
+            break;
+          case "User":
+            setUserData({
+              user_name: data && data[1],
+              user_phone: data && data[2],
+              user_address: data && data[3],
+            });
+          case "Book":
+            setBookData({
+              book_name: data && data[1],
+              book_isbn: data && data[2],
+              book_quantity: data && data[3],
+              book_author: data && data[4],
+              genre_type: data && data[5],
+            });
+            break;
+          default:
+            break;
+        }
       }
+    } catch (error) {
+      console.log(error);
     }
   }, [open]);
   return (
@@ -192,68 +200,72 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
                   color="primary"
                   size="large"
                   onClick={async () => {
-                    switch (title) {
-                      case "Return Book":
-                        // console.log(d[3])
-                        if (d[3] != "returned") {
+                    try {
+                      switch (title) {
+                        case "Return Book":
+                          // console.log(d[3])
+                          if (d[3] != "returned") {
+                            const data = {
+                              return_status: "returned",
+                              book_id: d[7],
+                              user_id: d[8],
+                            };
+                            const getIssueData = await api.Calls(
+                              `issuedbook/return`,
+                              "PUT",
+                              data
+                            );
+                            if (getIssueData.status == 200) {
+                              handleTrigger();
+                              alert("Book Returned Successfully");
+                            } else {
+                              alert(getIssueData.msg.response.data.message);
+                            }
+                          } else {
+                            alert("Book Is already Returned");
+                          }
+
+                          break;
+                        case "Select Book":
+                          if (d[3] > 0) {
+                            dispatch(setIssueBookId(d[0]));
+                            history.push("issue/issueuser");
+                            // console.log("issue", d);
+                          } else {
+                            alert("Book Not Available");
+                          }
+
+                          break;
+
+                        case "Select User":
+                          // dispatch(setIssueUserId(d[0]));
                           const data = {
-                            return_status: "returned",
-                            book_id: d[7],
-                            user_id: d[8],
+                            admin_id: login.adminData.admin_id,
+                            book_id: IssueBookId,
+                            user_id: d[0],
                           };
                           const getIssueData = await api.Calls(
-                            `issuedbook/return`,
-                            "PUT",
+                            `issuedbook/`,
+                            "POST",
                             data
                           );
-                          if (getIssueData.status == 200) {
-                            handleTrigger();
-                            alert("Book Returned Successfully");
+                          if (getIssueData.status == 201) {
+                            // handleTrigger();
+                            dispatch(setIssueBookId(null));
+                            alert("Book Issued  Successfully");
+                            history.push("return");
                           } else {
                             alert(getIssueData.msg.response.data.message);
                           }
-                        } else {
-                          alert("Book Is already Returned");
-                        }
-
-                        break;
-                      case "Select Book":
-                        if (d[3] > 0) {
-                          dispatch(setIssueBookId(d[0]));
-                          history.push("issue/issueuser");
-                          // console.log("issue", d);
-                        } else {
-                          alert("Book Not Available");
-                        }
-
-                        break;
-
-                      case "Select User":
-                        // dispatch(setIssueUserId(d[0]));
-                        const data = {
-                          admin_id: login.adminData.admin_id,
-                          book_id: IssueBookId,
-                          user_id: d[0],
-                        };
-                        const getIssueData = await api.Calls(
-                          `issuedbook/`,
-                          "POST",
-                          data
-                        );
-                        if (getIssueData.status == 201) {
-                          // handleTrigger();
-                          dispatch(setIssueBookId(null));
-                          alert("Book Issued  Successfully");
-                          history.push("return");
-                        } else {
-                          alert(getIssueData.msg.response.data.message);
-                        }
-                        // alert("Book Issued Successfully");
-                        // console.log("issueUser", d[0]);
-                        break;
-                      default:
-                        handleClickOpen(d);
-                        break;
+                          // alert("Book Issued Successfully");
+                          // console.log("issueUser", d[0]);
+                          break;
+                        default:
+                          handleClickOpen(d);
+                          break;
+                      }
+                    } catch (error) {
+                      console.log(error);
                     }
                   }}
                 >
@@ -287,48 +299,52 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
                       color="secondary"
                       size="large"
                       onClick={async () => {
-                        switch (title) {
-                          case "Admin":
-                            const getAdminData = await api.Calls(
-                              `admin/${d[0]}`,
-                              "DELETE"
-                            );
-                            if (getAdminData.status == 200) {
-                              handleTrigger();
-                              alert("Admin Deleted Successfully");
-                            } else {
-                              alert(getAdminData.msg.response.data.message);
-                            }
-                            break;
-                          case "User":
-                            //  console.log(d[0]);
-                            const getUserData = await api.Calls(
-                              `user/${d[0]}`,
-                              "DELETE"
-                            );
-                            if (getUserData.status == 200) {
-                              handleTrigger();
-                              alert("User Deleted Successfully");
-                            } else {
-                              alert(getUserData.msg.response.data.message);
-                            }
+                        try {
+                          switch (title) {
+                            case "Admin":
+                              const getAdminData = await api.Calls(
+                                `admin/${d[0]}`,
+                                "DELETE"
+                              );
+                              if (getAdminData.status == 200) {
+                                handleTrigger();
+                                alert("Admin Deleted Successfully");
+                              } else {
+                                alert(getAdminData.msg.response.data.message);
+                              }
+                              break;
+                            case "User":
+                              //  console.log(d[0]);
+                              const getUserData = await api.Calls(
+                                `user/${d[0]}`,
+                                "DELETE"
+                              );
+                              if (getUserData.status == 200) {
+                                handleTrigger();
+                                alert("User Deleted Successfully");
+                              } else {
+                                alert(getUserData.msg.response.data.message);
+                              }
 
-                            break;
-                          case "Book":
-                            const getBookData = await api.Calls(
-                              `book/${d[0]}`,
-                              "DELETE"
-                            );
-                            if (getBookData.status == 200) {
-                              handleTrigger();
-                              alert("Book Deleted Successfully");
-                            } else {
-                              alert(getBookData.msg.response.data.message);
-                            }
-                            break;
+                              break;
+                            case "Book":
+                              const getBookData = await api.Calls(
+                                `book/${d[0]}`,
+                                "DELETE"
+                              );
+                              if (getBookData.status == 200) {
+                                handleTrigger();
+                                alert("Book Deleted Successfully");
+                              } else {
+                                alert(getBookData.msg.response.data.message);
+                              }
+                              break;
 
-                          default:
-                            break;
+                            default:
+                              break;
+                          }
+                        } catch (error) {
+                          console.log(error);
                         }
                       }}
                     >
@@ -418,19 +434,23 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
                 onClick={async () => {
-                  console.log(userData);
-                  const getUserData = await api.Calls(
-                    `user/${data[0]}`,
-                    "PUT",
-                    userData
-                  );
-                  if (getUserData.status == 200) {
-                    handleTrigger();
-                    alert("User Updated Successfully");
-                  } else {
-                    alert(getUserData.msg.response.data.message);
+                  try {
+                    console.log(userData);
+                    const getUserData = await api.Calls(
+                      `user/${data[0]}`,
+                      "PUT",
+                      userData
+                    );
+                    if (getUserData.status == 200) {
+                      handleTrigger();
+                      alert("User Updated Successfully");
+                    } else {
+                      alert(getUserData.msg.response.data.message);
+                    }
+                    setOpen(false);
+                  } catch (error) {
+                    console.log(error);
                   }
-                  setOpen(false);
                 }}
               >
                 Update {title}
@@ -490,20 +510,24 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
                 onClick={async () => {
-                  const getAdminData = await api.Calls(
-                    `admin/${data[0]}`,
-                    "PUT",
-                    formData
-                  );
-                  if (getAdminData.status == 200) {
-                    handleTrigger();
-                    alert("Admin Updated Successfully");
-                  } else {
-                    alert(getAdminData.msg.response.data.message);
-                  }
-                  // console.log(formData)
+                  try {
+                    const getAdminData = await api.Calls(
+                      `admin/${data[0]}`,
+                      "PUT",
+                      formData
+                    );
+                    if (getAdminData.status == 200) {
+                      handleTrigger();
+                      alert("Admin Updated Successfully");
+                    } else {
+                      alert(getAdminData.msg.response.data.message);
+                    }
+                    // console.log(formData)
 
-                  setOpen(false);
+                    setOpen(false);
+                  } catch (error) {
+                    console.log(error);
+                  }
                 }}
               >
                 Update {title}
@@ -601,19 +625,23 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
                 onClick={async () => {
-                  const getBookData = await api.Calls(
-                    `book/${data[0]}`,
-                    "PUT",
-                    bookData
-                  );
-                  if (getBookData.status == 200) {
-                    handleTrigger();
-                    alert("Book Updated Successfully");
-                  } else {
-                    alert(getBookData.msg.response.data.message);
-                  }
+                  try {
+                    const getBookData = await api.Calls(
+                      `book/${data[0]}`,
+                      "PUT",
+                      bookData
+                    );
+                    if (getBookData.status == 200) {
+                      handleTrigger();
+                      alert("Book Updated Successfully");
+                    } else {
+                      alert(getBookData.msg.response.data.message);
+                    }
 
-                  setOpen(false);
+                    setOpen(false);
+                  } catch (error) {
+                    console.log(error);
+                  }
                 }}
               >
                 Update {title}

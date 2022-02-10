@@ -57,10 +57,14 @@ export default function SuperAdmin() {
   });
 
   const checkBookExits = async (e) => {
-    if (e.target.value.length != 0) {
-      const isExits = await api.Calls(`admin/exits/${e.target.value}`, "GET");
-      // console.log(isExits.data);
-      setexits(isExits.data.success);
+    try {
+      if (e.target.value.length != 0) {
+        const isExits = await api.Calls(`admin/exits/${e.target.value}`, "GET");
+        // console.log(isExits.data);
+        setexits(isExits.data.success);
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -81,23 +85,27 @@ export default function SuperAdmin() {
   const getAdmin = async () => {
     let changeToarray = [];
     setloading(true);
-    const getAdminData = await api.Calls(`admin/`, "GET");
-    // console.log(countData);
-    if (getAdminData.data.length > 0) {
-      getAdminData.data.map((d, i) => {
-        changeToarray.push({
-          // id:i+1,
-          id: d.admin_id,
-          username: d.admin_username,
-          role: d.admin_role,
+    try {
+      const getAdminData = await api.Calls(`admin/`, "GET");
+      // console.log(countData);
+      if (getAdminData.data.length > 0) {
+        getAdminData.data.map((d, i) => {
+          changeToarray.push({
+            // id:i+1,
+            id: d.admin_id,
+            username: d.admin_username,
+            role: d.admin_role,
+          });
         });
-      });
+      }
+      let arrayOfArrays =
+        changeToarray && changeToarray.map((obj) => Object.values(obj));
+      //  changeToarray=[...issuedData.data]
+      setadmin(arrayOfArrays);
+      console.log("arrayOfArrays", arrayOfArrays);
+    } catch (error) {
+      console.log(error);
     }
-    let arrayOfArrays =
-      changeToarray && changeToarray.map((obj) => Object.values(obj));
-    //  changeToarray=[...issuedData.data]
-    setadmin(arrayOfArrays);
-    console.log("arrayOfArrays", arrayOfArrays);
 
     setloading(false);
   };
@@ -232,23 +240,27 @@ export default function SuperAdmin() {
                   disabled={exits}
                   sx={{ mt: 3, mb: 2 }}
                   onClick={async () => {
-                    if (!exits) {
-                      const addAdmin = await api.Calls(
-                        `admin/`,
-                        "POST",
-                        formData
-                      );
-                      // console.log(addbook)
-                      if (addAdmin.status == 201) {
-                        handleTrigger();
-                        alert("Admin Added Successfully");
-                        setexits(false);
-                      } else {
-                        alert(addAdmin.msg.response.data.message);
+                    try {
+                      if (!exits) {
+                        const addAdmin = await api.Calls(
+                          `admin/`,
+                          "POST",
+                          formData
+                        );
+                        // console.log(addbook)
+                        if (addAdmin.status == 201) {
+                          handleTrigger();
+                          alert("Admin Added Successfully");
+                          setexits(false);
+                        } else {
+                          alert(addAdmin.msg.response.data.message);
+                        }
                       }
-                    }
 
-                    setOpen(false);
+                      setOpen(false);
+                    } catch (error) {
+                      console.log(error);
+                    }
                   }}
                 >
                   Add Admin

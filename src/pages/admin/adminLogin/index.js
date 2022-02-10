@@ -76,7 +76,9 @@ export default function AdminLogin() {
         setOpen(true);
         console.log(loginData.msg.response.data.message);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {

@@ -33,31 +33,37 @@ export default function IssuedBook() {
   ];
 
   const getIssuedBookData = async () => {
-    let changeToarray = [];
     setloading(true);
-    const issuedData = await api.Calls(
-      `issuedbook/user/${userData.user_id}`,
-      "GET"
-    );
-    if (issuedData.data.length > 0) {
-      issuedData.data.map((d, i) => {
-        changeToarray.push({
-          // id:i+1,
-          id: d.issuedbook_id,
-          issued_date: d.issued_date,
-          return_date: d.return_date,
-          return_status: d.return_status,
-          book: d.book_name,
-          user: d.user_name,
-          admin: d.admin_username,
+
+    try {
+      let changeToarray = [];
+      const issuedData = await api.Calls(
+        `issuedbook/user/${userData.user_id}`,
+        "GET"
+      );
+      if (issuedData.data.length > 0) {
+        issuedData.data.map((d, i) => {
+          changeToarray.push({
+            // id:i+1,
+            id: d.issuedbook_id,
+            issued_date: d.issued_date,
+            return_date: d.return_date,
+            return_status: d.return_status,
+            book: d.book_name,
+            user: d.user_name,
+            admin: d.admin_username,
+          });
         });
-      });
+      }
+      let arrayOfArrays =
+        changeToarray && changeToarray.map((obj) => Object.values(obj));
+      //  changeToarray=[...issuedData.data]
+      setissuedData(arrayOfArrays);
+      console.log("arrayOfArrays", arrayOfArrays);
+      setloading(false);
+    } catch (error) {
+      console.log(error);
     }
-    let arrayOfArrays =
-      changeToarray && changeToarray.map((obj) => Object.values(obj));
-    //  changeToarray=[...issuedData.data]
-    setissuedData(arrayOfArrays);
-    console.log("arrayOfArrays", arrayOfArrays);
     setloading(false);
   };
 

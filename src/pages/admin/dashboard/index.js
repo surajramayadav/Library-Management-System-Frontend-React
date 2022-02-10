@@ -18,7 +18,6 @@ import DataTable from "../../../components/DataTable/DataTable";
 const api = new Api();
 
 export default function Dashboard() {
-  
   const [loading, setloading] = useState(true);
 
   const [returnBook, setreturnBook] = useState();
@@ -39,51 +38,54 @@ export default function Dashboard() {
   const getcountGenreByBook = async () => {
     let changeToarray = [];
     setloading(true);
-    const countData = await api.Calls(`report/count`, "GET");
-    console.log(countData);
-    if (countData.data.length > 0) {
-      countData.data.map((d, i) => {
-        changeToarray.push({
-          // id:i+1,
-          id: i + 1,
-          genre: d.genre_type,
-          count: d.count,
+    try {
+      const countData = await api.Calls(`report/count`, "GET");
+      console.log(countData);
+      if (countData.data.length > 0) {
+        countData.data.map((d, i) => {
+          changeToarray.push({
+            // id:i+1,
+            id: i + 1,
+            genre: d.genre_type,
+            count: d.count,
+          });
         });
-      });
-    }
-    let arrayOfArrays =
-      changeToarray && changeToarray.map((obj) => Object.values(obj));
-    //  changeToarray=[...issuedData.data]
-    setcountGenre(arrayOfArrays);
-    console.log("arrayOfArrays", arrayOfArrays);
+      }
+      let arrayOfArrays =
+        changeToarray && changeToarray.map((obj) => Object.values(obj));
+      //  changeToarray=[...issuedData.data]
+      setcountGenre(arrayOfArrays);
+      console.log("arrayOfArrays", arrayOfArrays);
 
-    const returnToday = await api.Calls(`report/today`, "GET");
-    let changeToarray1 = [];
-    if (returnToday.data.length > 0) {
-      returnToday.data.map((d, i) => {
-        changeToarray1.push({
-          // id:i+1,
-          id: i + 1,
-          book: d.book_name,
-          user: d.user_name,
+      const returnToday = await api.Calls(`report/today`, "GET");
+      let changeToarray1 = [];
+      if (returnToday.data.length > 0) {
+        returnToday.data.map((d, i) => {
+          changeToarray1.push({
+            // id:i+1,
+            id: i + 1,
+            book: d.book_name,
+            user: d.user_name,
+          });
         });
-      });
+      }
+      let arrayOfArrays1 =
+        changeToarray1 && changeToarray1.map((obj) => Object.values(obj));
+      //  changeToarray=[...issuedData.data]
+      setreturnBook(arrayOfArrays1);
+      console.log(arrayOfArrays1);
+
+      const user = await api.Calls(`user/`, "GET");
+      setuserCount(user.data.length);
+      const admin = await api.Calls(`admin/`, "GET");
+      setadminCount(admin.data.length);
+      const book = await api.Calls(`book/`, "GET");
+      setbookCount(book.data.length);
+      const issued = await api.Calls(`issuedbook/`, "GET");
+      setissuedCount(issued.data.length);
+    } catch (error) {
+      console.log(error);
     }
-    let arrayOfArrays1 =
-      changeToarray1 && changeToarray1.map((obj) => Object.values(obj));
-    //  changeToarray=[...issuedData.data]
-    setreturnBook(arrayOfArrays1);
-    console.log(arrayOfArrays1);
-
-    const user = await api.Calls(`user/`, "GET");
-    setuserCount(user.data.length);
-    const admin = await api.Calls(`admin/`, "GET");
-    setadminCount(admin.data.length);
-    const book = await api.Calls(`book/`, "GET");
-    setbookCount(book.data.length);
-    const issued = await api.Calls(`issuedbook/`, "GET");
-    setissuedCount(issued.data.length);
-
     setloading(false);
   };
 

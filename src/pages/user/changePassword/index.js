@@ -18,7 +18,6 @@ import { useSelector } from "react-redux";
 import { BsFillLockFill } from "react-icons/bs";
 import Colors from "../../../utils/styles/colors";
 
-
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -69,10 +68,12 @@ export default function ChangePassword() {
           setOpen(true);
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
-    <Container component="main" maxWidth="xs" style={{marginTop:50}}>
+    <Container component="main" maxWidth="xs" style={{ marginTop: 50 }}>
       <CssBaseline />
       <Box
         sx={{
@@ -95,20 +96,23 @@ export default function ChangePassword() {
               justifyContent: "center",
             }}
           >
-            <BsFillLockFill size={50} color={Colors .white} />
+            <BsFillLockFill size={50} color={Colors.white} />
           </div>
         </div>
         <div
           style={{ display: "flex", justifyContent: "center", marginTop: 20 }}
-        > <Typography component="h1" variant="h5">
-        Change Password
-      </Typography></div>
-       
-        <Box noValidate sx={{ mt: 3 }} style={{marginTop:20}}>
+        >
+          {" "}
+          <Typography component="h1" variant="h5">
+            Change Password
+          </Typography>
+        </div>
+
+        <Box noValidate sx={{ mt: 3 }} style={{ marginTop: 20 }}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
-              variant="outlined"
+                variant="outlined"
                 autoComplete="given-name"
                 name="user_password"
                 required
@@ -136,7 +140,7 @@ export default function ChangePassword() {
             </Grid>
           </Grid>
           <Button
-          style={{marginTop:20}}
+            style={{ marginTop: 20 }}
             type="submit"
             color="primary"
             fullWidth

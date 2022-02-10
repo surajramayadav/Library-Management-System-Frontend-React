@@ -41,28 +41,32 @@ export default function ReturnBook() {
   const getIssuedBookData = async () => {
     let changeToarray = [];
     setloading(true);
-    const issuedData = await api.Calls(`issuedbook/`, "GET");
-    if (issuedData.data.length > 0) {
-      issuedData.data.map((d, i) => {
-        changeToarray.push({
-          // id:i+1,
-          id: d.issuedbook_id,
-          issued_date: d.issued_date,
-          return_date: d.return_date,
-          return_status: d.return_status,
-          book: d.bookModel.book_name,
-          user: d.userModel.user_name,
-          admin: d.adminModel.admin_username,
-          book_id:d.bookModel.book_id,
-          user_id:d.userModel.user_id
+    try {
+      const issuedData = await api.Calls(`issuedbook/`, "GET");
+      if (issuedData.data.length > 0) {
+        issuedData.data.map((d, i) => {
+          changeToarray.push({
+            // id:i+1,
+            id: d.issuedbook_id,
+            issued_date: d.issued_date,
+            return_date: d.return_date,
+            return_status: d.return_status,
+            book: d.bookModel.book_name,
+            user: d.userModel.user_name,
+            admin: d.adminModel.admin_username,
+            book_id: d.bookModel.book_id,
+            user_id: d.userModel.user_id,
+          });
         });
-      });
+      }
+      let arrayOfArrays =
+        changeToarray && changeToarray.map((obj) => Object.values(obj));
+      //  changeToarray=[...issuedData.data]
+      setissuedData(arrayOfArrays);
+      console.log("arrayOfArrays", arrayOfArrays);
+    } catch (error) {
+      console.log(error);
     }
-    let arrayOfArrays =
-      changeToarray && changeToarray.map((obj) => Object.values(obj));
-    //  changeToarray=[...issuedData.data]
-    setissuedData(arrayOfArrays);
-    console.log("arrayOfArrays", arrayOfArrays);
     setloading(false);
   };
 
@@ -98,7 +102,7 @@ export default function ReturnBook() {
             >
               {!loading && (
                 <DataTable
-                handleTrigger={handleTrigger}
+                  handleTrigger={handleTrigger}
                   rows={issuedData}
                   columns={columns}
                   title="Return Book"
