@@ -51,23 +51,29 @@ export default function AdminChangePassword() {
 
   const handleChangePassword = async () => {
     try {
-      if (formData.admin_password != formData.admin_cpassword) {
+      if(formData.admin_password.length == 0){
+        setmsg("Password is required");
         setOpen(true);
-        setmsg("Password and confirm password not matching");
-      } else {
-        const updatedData = await api.Calls(
-          `admin/password/${adminData.admin_id}`,
-          "PUT",
-          { admin_password: formData.admin_password }
-        );
-        if (updatedData.status == 200) {
+      }else{
+        if (formData.admin_password != formData.admin_cpassword) {
+          setmsg("Password and confirm password not matching");
           setOpen(true);
-          setmsg("Password is Updated SuccessFully");
         } else {
-          setmsg(updatedData.msg.response.data.message);
-          setOpen(true);
+          const updatedData = await api.Calls(
+            `admin/password/${adminData.admin_id}`,
+            "PUT",
+            { admin_password: formData.admin_password }
+          );
+          if (updatedData.status == 200) {
+            setmsg("Password is Updated SuccessFully");
+            setOpen(true);
+          } else {
+            setmsg(updatedData.msg.response.data.message);
+            setOpen(true);
+          }
         }
       }
+     
     } catch (error) {
       console.log(error);
     }
@@ -120,6 +126,7 @@ export default function AdminChangePassword() {
                 id="admin_password"
                 label="Password"
                 type="password"
+                value={formData.admin_password}
                 onChange={handleChange}
                 autoFocus
               />
@@ -133,6 +140,7 @@ export default function AdminChangePassword() {
                 label="Confirm Password"
                 name="admin_cpassword"
                 type="password"
+                value={formData.admin_cpassword}
                 onChange={handleChange}
 
                 // autoComplete="family-name"

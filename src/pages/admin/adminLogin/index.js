@@ -65,16 +65,24 @@ export default function AdminLogin() {
 
   const handleLogin = async () => {
     try {
-      const loginData = await api.Calls("admin/login", "POST", formData);
-      if (loginData.status == 200) {
-        dispatch(setuserLogin(false));
-        dispatch(setadminLogin(true));
-        dispatch(setadminData(loginData.data));
-        history.push("/admin/home");
-      } else {
-        setmsg(loginData.msg.response.data.message);
+      if (formData.admin_username.length == 0) {
+        setmsg("Username is required");
         setOpen(true);
-        console.log(loginData.msg.response.data.message);
+      } else if (formData.admin_password.length == 0) {
+        setmsg("Password is required");
+        setOpen(true);
+      } else {
+        const loginData = await api.Calls("admin/login", "POST", formData);
+        if (loginData.status == 200) {
+          dispatch(setuserLogin(false));
+          dispatch(setadminLogin(true));
+          dispatch(setadminData(loginData.data));
+          history.push("/admin/home");
+        } else {
+          setmsg(loginData.msg.response.data.message);
+          setOpen(true);
+          console.log(loginData.msg.response.data.message);
+        }
       }
     } catch (error) {
       console.log(error);

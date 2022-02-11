@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Api from "../../../api";
 import DataTable from "../../../components/DataTable/DataTable";
 import Loading from "../../../components/Loading";
+import Snackbar from "@material-ui/core/Snackbar";
 import {
   Dialog,
   DialogContent,
@@ -13,8 +14,12 @@ import {
 import Colors from "../../../utils/styles/colors";
 import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
+import MuiAlert from "@material-ui/lab/Alert";
 const api = new Api();
 
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 export default function SuperAdmin() {
   const [loading, setloading] = useState(true);
   const [open, setOpen] = React.useState(false);
@@ -23,6 +28,16 @@ export default function SuperAdmin() {
   const login = useSelector((state) => state.login);
   const { adminData, adminLogin } = login;
   const history = useHistory();
+
+  const [msg, setmsg] = React.useState(null);
+  const [snack, setsnack] = React.useState(false);
+
+  const handleSnackClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setsnack(false);
+  };
 
   const handleClose = () => {
     setOpen(false);
@@ -190,6 +205,7 @@ export default function SuperAdmin() {
                     id="admin_username"
                     label="Admin Username"
                     name="admin_username"
+                    value={formData.admin_username}
                     // defaultValue={data && data[1]}
                     // autoComplete="phone"
                     onChange={(e) => {
@@ -210,6 +226,7 @@ export default function SuperAdmin() {
                     id="admin_role"
                     label="Admin Role"
                     name="admin_role"
+                    value={formData.admin_role}
                     // defaultValue={data && data[3]}
                     // autoComplete="phone"
                     onChange={handleChange}
@@ -223,6 +240,7 @@ export default function SuperAdmin() {
                     id="admin_password"
                     label="Admin Password"
                     name="admin_password"
+                    value={formData.admin_password}
                     // defaultValue={data && data[2]}
                     // autoComplete="phone"
                     onChange={handleChange}
@@ -241,23 +259,36 @@ export default function SuperAdmin() {
                   sx={{ mt: 3, mb: 2 }}
                   onClick={async () => {
                     try {
-                      if (!exits) {
-                        const addAdmin = await api.Calls(
-                          `admin/`,
-                          "POST",
-                          formData
-                        );
-                        // console.log(addbook)
-                        if (addAdmin.status == 201) {
-                          handleTrigger();
-                          alert("Admin Added Successfully");
-                          setexits(false);
-                        } else {
-                          alert(addAdmin.msg.response.data.message);
+                      if (formData.admin_username.length == 0) {
+                        setmsg("Username is required");
+                        setsnack(true);
+                      } else if (formData.admin_role.length == 0) {
+                        setmsg("Role is required");
+                        setsnack(true);
+                      } else if (formData.admin_password.length == 0) {
+                        setmsg("Password is required");
+                        setsnack(true);
+                      } else {
+                        if (!exits) {
+                          const addAdmin = await api.Calls(
+                            `admin/`,
+                            "POST",
+                            formData
+                          );
+                          // console.log(addbook)
+                          if (addAdmin.status == 201) {
+                            handleTrigger();
+                            setmsg("Admin Added Successfully");
+                            setsnack(true);
+                            setexits(false);
+                          } else {
+                            setmsg(addAdmin.msg.response.data.message);
+                            setsnack(true);
+                          }
                         }
-                      }
 
-                      setOpen(false);
+                        setOpen(false);
+                      }
                     } catch (error) {
                       console.log(error);
                     }
@@ -270,6 +301,15 @@ export default function SuperAdmin() {
           </div>
         </div>
       )}
+      <Snackbar open={snack} autoHideDuration={6000} onClose={handleSnackClose}>
+        <Alert
+          onClose={handleSnackClose}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          {msg}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

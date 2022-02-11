@@ -11,9 +11,14 @@ import {
   TextField,
 } from "@material-ui/core";
 import Colors from "../../../utils/styles/colors";
+import MuiAlert from "@material-ui/lab/Alert";
+import Snackbar from "@material-ui/core/Snackbar";
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const api = new Api();
-
 export default function User() {
   const [loading, setloading] = useState(true);
   const [open, setOpen] = React.useState(false);
@@ -26,6 +31,16 @@ export default function User() {
 
   const handleTrigger = () => {
     settrigger(!trigger);
+  };
+
+  const [msg, setmsg] = React.useState(null);
+  const [snack, setsnack] = React.useState(false);
+
+  const handleSnackClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setsnack(false);
   };
 
   const handleClose = () => {
@@ -177,6 +192,7 @@ export default function User() {
                       id="user_name"
                       label="User Name"
                       name="user_name"
+                      value={formData.user_name}
                       // defaultValue={data && data[1]}
                       // autoComplete="phone"
                       onChange={handleChange}
@@ -187,8 +203,10 @@ export default function User() {
                       required
                       fullWidth
                       id="user_phone"
+                      type="number"
                       label="Phone Number"
                       name="user_phone"
+                      value={formData.user_phone}
                       // defaultValue={data && data[3]}
                       // autoComplete="phone"
                       onChange={(e) => {
@@ -209,6 +227,7 @@ export default function User() {
                       id="user_address"
                       label="Address"
                       name="user_address"
+                      value={formData.user_address}
                       // defaultValue={data && data[3]}
                       // autoComplete="phone"
                       onChange={handleChange}
@@ -222,6 +241,7 @@ export default function User() {
                       id="user_password"
                       label="User Password"
                       name="user_password"
+                      value={formData.user_password}
                       // defaultValue={data && data[3]}
                       // autoComplete="phone"
                       onChange={handleChange}
@@ -240,20 +260,36 @@ export default function User() {
                     disabled={exits ? true : false}
                     onClick={async () => {
                       try {
-                        console.log(formData);
-                        const addUser = await api.Calls(
-                          `user/`,
-                          "POST",
-                          formData
-                        );
-                        console.log(addUser);
-                        if (addUser.status == 201) {
-                          handleTrigger();
-                          alert("User Successfully Added");
+                        if (formData.user_name.length == 0) {
+                          setmsg("Username is required");
+                          setsnack(true);
+                        } else if (formData.user_phone.length == 0) {
+                          setmsg("Phone Number is required");
+                          setsnack(true);
+                        } else if (formData.user_address.length == 0) {
+                          setmsg("Address is required");
+                          setsnack(true);
+                        } else if (formData.user_password.length == 0) {
+                          setmsg("Password is required");
+                          setsnack(true);
                         } else {
-                          alert(addUser.msg.response.data.message);
+                          console.log(formData);
+                          const addUser = await api.Calls(
+                            `user/`,
+                            "POST",
+                            formData
+                          );
+                          console.log(addUser);
+                          if (addUser.status == 201) {
+                            handleTrigger();
+                            setmsg("User Successfully Added");
+                            setsnack(true)
+                          } else {
+                            setmsg(addUser.msg.response.data.message);
+                            setsnack(true)
+                          }
+                          setOpen(false);
                         }
-                        setOpen(false);
                       } catch (error) {
                         console.log(error);
                       }
@@ -267,6 +303,15 @@ export default function User() {
           </div>
         </div>
       )}
+      <Snackbar open={snack} autoHideDuration={6000} onClose={handleSnackClose}>
+        <Alert
+          onClose={handleSnackClose}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          {msg}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

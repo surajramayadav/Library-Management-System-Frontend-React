@@ -3,9 +3,10 @@ import MUIDataTable from "mui-datatables";
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
 import { GrEdit } from "react-icons/gr";
-import { AiOutlineDelete } from "react-icons/ai";
+import { AiOutlinePlus } from "react-icons/ai";
 import ClearIcon from "@material-ui/icons/Clear";
 import EditIcon from "@material-ui/icons/Edit";
+import AddIcon from "@material-ui/icons/Add";
 import "./DataTable.css";
 import { IconContext } from "react-icons/lib";
 import {
@@ -20,7 +21,13 @@ import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setIssueBookId, setIssueUserId } from "../../redux/slice/homeSlice";
 import Api from "../../api";
-
+import MuiAlert from "@material-ui/lab/Alert";
+import AddShoppingCartIcon from "@material-ui/icons/AddShoppingCart";
+import Snackbar from "@material-ui/core/Snackbar";
+import RemoveIcon from "@material-ui/icons/Remove";
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 let classes = {};
 
 const options = {
@@ -58,6 +65,16 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
     book_author: "",
     genre_type: "",
   });
+
+  const [msg, setmsg] = React.useState(null);
+  const [snack, setsnack] = React.useState(false);
+
+  const handleSnackClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setsnack(false);
+  };
 
   // console.log("data", data);
   const handleClickOpen = (data) => {
@@ -203,7 +220,7 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
                     try {
                       switch (title) {
                         case "Return Book":
-                          // console.log(d[3])
+                          console.log(d[3]);
                           if (d[3] != "returned") {
                             const data = {
                               return_status: "returned",
@@ -216,13 +233,16 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
                               data
                             );
                             if (getIssueData.status == 200) {
-                              handleTrigger();
                               alert("Book Returned Successfully");
+                              // setsnack(true);
+                              handleTrigger();
                             } else {
                               alert(getIssueData.msg.response.data.message);
+                              // setsnack(true);
                             }
                           } else {
-                            alert("Book Is already Returned");
+                            setmsg("Book Is already Returned");
+                            setsnack(true);
                           }
 
                           break;
@@ -232,7 +252,8 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
                             history.push("issue/issueuser");
                             // console.log("issue", d);
                           } else {
-                            alert("Book Not Available");
+                            setmsg("Book Not Available");
+                            setsnack(true);
                           }
 
                           break;
@@ -253,9 +274,11 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
                             // handleTrigger();
                             dispatch(setIssueBookId(null));
                             alert("Book Issued  Successfully");
+                            // setsnack(true);
                             history.push("return");
                           } else {
-                            alert(getIssueData.msg.response.data.message);
+                            setmsg(getIssueData.msg.response.data.message);
+                            setsnack(true);
                           }
                           // alert("Book Issued Successfully");
                           // console.log("issueUser", d[0]);
@@ -279,11 +302,11 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
                       }}
                     >
                       {title == "Return Book" ? (
-                        "Return Book"
+                        <RemoveIcon />
                       ) : title == "Select Book" ? (
-                        "Select"
+                        <AddIcon />
                       ) : title == "Select User" ? (
-                        "Issua A Book"
+                        "Issue A Book"
                       ) : (
                         <EditIcon />
                       )}
@@ -309,8 +332,10 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
                               if (getAdminData.status == 200) {
                                 handleTrigger();
                                 alert("Admin Deleted Successfully");
+                                // setsnack(true);
                               } else {
                                 alert(getAdminData.msg.response.data.message);
+                                // setsnack(true);
                               }
                               break;
                             case "User":
@@ -322,8 +347,10 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
                               if (getUserData.status == 200) {
                                 handleTrigger();
                                 alert("User Deleted Successfully");
+                                // setsnack(true);
                               } else {
                                 alert(getUserData.msg.response.data.message);
+                                // setsnack(true);
                               }
 
                               break;
@@ -335,8 +362,10 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
                               if (getBookData.status == 200) {
                                 handleTrigger();
                                 alert("Book Deleted Successfully");
+                                // setsnack(true);
                               } else {
                                 alert(getBookData.msg.response.data.message);
+                                // setsnack(true);
                               }
                               break;
 
@@ -445,7 +474,7 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
                       handleTrigger();
                       alert("User Updated Successfully");
                     } else {
-                      alert(getUserData.msg.response.data.message);
+                      setmsg(getUserData.msg.response.data.message);
                     }
                     setOpen(false);
                   } catch (error) {
@@ -650,6 +679,15 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
           </Dialog>
         </div>
       )}
+      <Snackbar open={snack} autoHideDuration={6000} onClose={handleSnackClose}>
+        <Alert
+          onClose={handleSnackClose}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          {msg}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

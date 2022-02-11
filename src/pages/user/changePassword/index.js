@@ -51,21 +51,26 @@ export default function ChangePassword() {
 
   const handleChangePassword = async () => {
     try {
-      if (formData.user_password != formData.user_cpassword) {
+      if (formData.user_password.length == 0) {
         setOpen(true);
-        setmsg("Password and confirm password not matching");
+        setmsg("Password is required");
       } else {
-        const updatedData = await api.Calls(
-          `user/password/${userData.user_id}`,
-          "PUT",
-          { user_password: formData.user_password }
-        );
-        if (updatedData.status == 200) {
+        if (formData.user_password != formData.user_cpassword) {
           setOpen(true);
-          setmsg("Password is Updated SuccessFully");
+          setmsg("Password and confirm password not matching");
         } else {
-          setmsg(updatedData.msg.response.data.message);
-          setOpen(true);
+          const updatedData = await api.Calls(
+            `user/password/${userData.user_id}`,
+            "PUT",
+            { user_password: formData.user_password }
+          );
+          if (updatedData.status == 200) {
+            setOpen(true);
+            setmsg("Password is Updated SuccessFully");
+          } else {
+            setmsg(updatedData.msg.response.data.message);
+            setOpen(true);
+          }
         }
       }
     } catch (error) {

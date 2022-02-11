@@ -7,6 +7,7 @@ import Snackbar from "@material-ui/core/Snackbar";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import MuiAlert from "@material-ui/lab/Alert";
+import { Field } from "formik";
 import * as React from "react";
 import { BsFillLockFill } from "react-icons/bs";
 import { useDispatch, useSelector } from "react-redux";
@@ -49,6 +50,9 @@ export default function UserLogin() {
   const [msg, setmsg] = React.useState(null);
   const [open, setOpen] = React.useState(false);
 
+  const [phoneerr, setphonerr] = React.useState("Phone Number is required");
+  const [passerr, setpasserr] = React.useState("Password is required");
+
   const [formData, setFormData] = React.useState({
     user_phone: "",
     user_password: "",
@@ -65,27 +69,78 @@ export default function UserLogin() {
 
   const handleLogin = async () => {
     try {
-      const loginData = await api.Calls("user/login", "POST", formData);
-      if (loginData.status == 200) {
-        dispatch(setuserLogin(true));
-        dispatch(setadminLogin(false));
-        dispatch(setuserData(loginData.data));
-        dispatch(setadminData([]));
-        history.push("/user/home");
-      } else {
-        setmsg(loginData.msg.response.data.message);
+      if (phoneerr == null && passerr == null) {
+        const loginData = await api.Calls("user/login", "POST", formData);
+        if (loginData.status == 200) {
+          dispatch(setuserLogin(true));
+          dispatch(setadminLogin(false));
+          dispatch(setuserData(loginData.data));
+          dispatch(setadminData([]));
+          history.push("/user/home");
+        } else {
+          setmsg(loginData.msg.response.data.message);
+          setOpen(true);
+          console.log(loginData.msg.response.data.message);
+        }
+      } else if (phoneerr != null) {
+        setmsg(phoneerr);
         setOpen(true);
-        console.log(loginData.msg.response.data.message);
+      } else if (passerr != null) {
+        setmsg(passerr);
+        setOpen(true);
       }
     } catch (error) {
       console.log(error);
     }
   };
+
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
     setOpen(false);
+  };
+
+  const Validate = (filed, msg) => {
+    // console.log(e, msg)
+    let e= filed.target.value
+    const regexname = new RegExp(/^[a-zA-Z ]+$/);
+    const regexEmail = new RegExp(
+      /^[\w\-\.\+]+\@[a-zA-Z0-9\.\-]+\.[a-zA-z0-9]{2,4}$/
+    );
+    const regexPhone = new RegExp(
+      /^[+]?(\d{1,2})?[\s.-]?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/
+    );
+    switch (msg) {
+      case "pass":
+        if (e.length === 0) {
+          setpasserr("Password is required ");
+        } else if (e.length <= 4) {
+          setpasserr("'Password is too small");
+        } else {
+          setpasserr(null);
+        }
+        break;
+
+      // case "cpass":
+      //   if (e.length === 0) {
+      //     setcpasserr("Confirm password is required");
+      //   } else if (e !== form.pass) {
+      //     setcpasserr("Confirm Password is not matching ");
+      //   } else {
+      //     setcpasserr("");
+      //   }
+      //   break;
+      case "phone":
+        if (e.length === 0) {
+          setphonerr("Phone Number is required ");
+        } else if (!regexPhone.test(e)) {
+          setphonerr("Invalid phone number");
+        } else {
+          setphonerr(null);
+        }
+        break;
+    }
   };
 
   return (
@@ -131,7 +186,10 @@ export default function UserLogin() {
             label="Phone Number"
             name="user_phone"
             // autoComplete="phone"
-            onChange={handleChange}
+            onChange={(e) => {
+              Validate(e, "phone");
+              handleChange(e);
+            }}
           />
           <TextField
             style={{ marginTop: 20 }}
@@ -143,7 +201,10 @@ export default function UserLogin() {
             type="password"
             id="user_password"
             // autoComplete="new-password"
-            onChange={handleChange}
+            onChange={(e) => {
+              Validate(e, "pass");
+              handleChange(e);
+            }}
           />
 
           <Button

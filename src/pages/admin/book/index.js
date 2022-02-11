@@ -11,6 +11,12 @@ import {
   TextField,
 } from "@material-ui/core";
 import Colors from "../../../utils/styles/colors";
+import MuiAlert from "@material-ui/lab/Alert";
+import Snackbar from "@material-ui/core/Snackbar";
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const api = new Api();
 
@@ -20,6 +26,16 @@ export default function Book() {
   const [book, setbook] = useState();
   const [open, setOpen] = React.useState(false);
   const [exits, setexits] = useState(false);
+
+  const [msg, setmsg] = React.useState(null);
+  const [snack, setsnack] = React.useState(false);
+
+  const handleSnackClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setsnack(false);
+  };
 
   const columns = [
     "Id",
@@ -180,6 +196,7 @@ export default function Book() {
                     id="book_name"
                     label="Book Name"
                     name="book_name"
+                    value={formData.book_name}
                     // defaultValue={data && data[1]}
                     // autoComplete="phone"
                     onChange={(e) => {
@@ -201,6 +218,8 @@ export default function Book() {
                       id="book_isbn"
                       label="Book ISBN"
                       name="book_isbn"
+                      type="number"
+                      value={formData.book_isbn}
                       // defaultValue={data && data[2]}
                       // autoComplete="phone"
                       onChange={handleChange}
@@ -214,6 +233,8 @@ export default function Book() {
                     id="book_quantity"
                     label="Quantity"
                     name="book_quantity"
+                    type="number"
+                    value={formData.book_quantity}
                     // defaultValue={data && data[3]}
                     // autoComplete="phone"
                     onChange={handleChange}
@@ -230,6 +251,7 @@ export default function Book() {
                         id="book_author"
                         label="Author"
                         name="book_author"
+                        value={formData.book_author}
                         // defaultValue={data && data[4]}
                         // autoComplete="phone"
                         onChange={handleChange}
@@ -242,6 +264,7 @@ export default function Book() {
                         id="genre_type"
                         label="Genre"
                         name="genre_type"
+                        value={formData.genre_type}
                         // defaultValue={data && data[5]}
                         // autoComplete="phone"
                         onChange={handleChange}
@@ -261,40 +284,61 @@ export default function Book() {
                   sx={{ mt: 3, mb: 2 }}
                   onClick={async () => {
                     try {
-                      if (exits) {
-                        const data = {
-                          book_name: formData.book_name,
-                          book_quantity: formData.book_quantity,
-                        };
-                        const bookUpdate = await api.Calls(
-                          `book/quantity`,
-                          "PUT",
-                          data
-                        );
-                        if (bookUpdate.status == 200) {
-                          handleTrigger();
-                          alert("Book Updated Successfully");
-                          setexits(false);
-                        } else {
-                          alert(bookUpdate.msg.response.data.message);
-                        }
+                      if (formData.book_name.length == 0) {
+                        setmsg("Book Name is required");
+                        setsnack(true);
+                      } else if (formData.book_isbn.length == 0) {
+                        setmsg("Book ISBN is required");
+                        setsnack(true);
+                      } else if (formData.book_quantity.length == 0) {
+                        setmsg("Book Quantity is required");
+                        setsnack(true);
+                      } else if (formData.book_author.length == 0) {
+                        setmsg("Book Author is required");
+                        setsnack(true);
+                      } else if (formData.genre_type.length == 0) {
+                        setmsg("Genre is required");
+                        setsnack(true);
                       } else {
-                        const addbook = await api.Calls(
-                          `book/`,
-                          "POST",
-                          formData
-                        );
-                        // console.log(addbook)
-                        if (addbook.status == 201) {
-                          handleTrigger();
-                          alert("Book Added Successfully");
-                          setexits(false);
+                        if (exits) {
+                          const data = {
+                            book_name: formData.book_name,
+                            book_quantity: formData.book_quantity,
+                          };
+                          const bookUpdate = await api.Calls(
+                            `book/quantity`,
+                            "PUT",
+                            data
+                          );
+                          if (bookUpdate.status == 200) {
+                            handleTrigger();
+                            setmsg("Book Updated Successfully");
+                            setsnack(true)
+                            setexits(false);
+                          } else {
+                            setmsg(bookUpdate.msg.response.data.message);
+                            setsnack(true)
+                          }
                         } else {
-                          alert(addbook.msg.response.data.message);
+                          const addbook = await api.Calls(
+                            `book/`,
+                            "POST",
+                            formData
+                          );
+                          // console.log(addbook)
+                          if (addbook.status == 201) {
+                            handleTrigger();
+                            setmsg("Book Added Successfully");
+                            setsnack(true)
+                            setexits(false);
+                          } else {
+                            setmsg(addbook.msg.response.data.message);
+                            setsnack(true)
+                          }
                         }
+                        // console.log(formData);
+                        setOpen(false);
                       }
-                      // console.log(formData);
-                      setOpen(false);
                     } catch (error) {
                       console.log(error);
                     }
@@ -307,6 +351,15 @@ export default function Book() {
           </div>
         </div>
       )}
+      <Snackbar open={snack} autoHideDuration={6000} onClose={handleSnackClose}>
+        <Alert
+          onClose={handleSnackClose}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          {msg}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

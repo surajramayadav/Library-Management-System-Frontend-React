@@ -101,7 +101,7 @@ export default function Dashboard() {
           <FaUserFriends />
         </>
       ),
-      title: "Total Users",
+      title: "Users",
       count: userCount,
       link: <>{/* Get more details... */}</>,
       bgColor: "#fe9f19",
@@ -113,7 +113,7 @@ export default function Dashboard() {
           <GoGraph />
         </>
       ),
-      title: "Total Books",
+      title: "Books",
       count: bookCount,
       link: (
         <>
@@ -131,7 +131,7 @@ export default function Dashboard() {
           <GiProgression />
         </>
       ),
-      title: "Total Issued Book",
+      title: "Issued ",
       count: issuedCount,
       link: (
         <>
@@ -149,7 +149,7 @@ export default function Dashboard() {
           <AiFillPieChart />
         </>
       ),
-      title: "Total Admin",
+      title: "Admin",
       count: adminCount,
       link: (
         <>
