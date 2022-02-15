@@ -13,7 +13,7 @@ import {
 import Colors from "../../../utils/styles/colors";
 import MuiAlert from "@material-ui/lab/Alert";
 import Snackbar from "@material-ui/core/Snackbar";
-
+import CloseIcon from '@material-ui/icons/Close';
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
@@ -182,8 +182,18 @@ export default function Book() {
               aria-labelledby="alert-dialog-title"
               aria-describedby="alert-dialog-description"
             >
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <DialogTitle id="alert-dialog-title">Add Book</DialogTitle>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginRight: 20,
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <DialogTitle id="alert-dialog-title">Add Book</DialogTitle>
+                </div>
+                <CloseIcon onClick={()=>handleClose()} />
               </div>
 
               <DialogContent>
@@ -284,23 +294,14 @@ export default function Book() {
                   sx={{ mt: 3, mb: 2 }}
                   onClick={async () => {
                     try {
-                      if (formData.book_name.length == 0) {
-                        setmsg("Book Name is required");
-                        setsnack(true);
-                      } else if (formData.book_isbn.length == 0) {
-                        setmsg("Book ISBN is required");
-                        setsnack(true);
-                      } else if (formData.book_quantity.length == 0) {
-                        setmsg("Book Quantity is required");
-                        setsnack(true);
-                      } else if (formData.book_author.length == 0) {
-                        setmsg("Book Author is required");
-                        setsnack(true);
-                      } else if (formData.genre_type.length == 0) {
-                        setmsg("Genre is required");
-                        setsnack(true);
-                      } else {
-                        if (exits) {
+                      if (exits) {
+                        if (formData.book_name.length == 0) {
+                          setmsg("Book Name is required");
+                          setsnack(true);
+                        } else if (formData.book_quantity.length == 0) {
+                          setmsg("Book Quantity is required");
+                          setsnack(true);
+                        } else {
                           const data = {
                             book_name: formData.book_name,
                             book_quantity: formData.book_quantity,
@@ -313,12 +314,29 @@ export default function Book() {
                           if (bookUpdate.status == 200) {
                             handleTrigger();
                             setmsg("Book Updated Successfully");
-                            setsnack(true)
+                            setsnack(true);
                             setexits(false);
                           } else {
                             setmsg(bookUpdate.msg.response.data.message);
-                            setsnack(true)
+                            setsnack(true);
                           }
+                        }
+                      } else {
+                        if (formData.book_name.length == 0) {
+                          setmsg("Book Name is required");
+                          setsnack(true);
+                        } else if (formData.book_isbn.length == 0) {
+                          setmsg("Book ISBN is required");
+                          setsnack(true);
+                        } else if (formData.book_quantity.length == 0) {
+                          setmsg("Book Quantity is required");
+                          setsnack(true);
+                        } else if (formData.book_author.length == 0) {
+                          setmsg("Book Author is required");
+                          setsnack(true);
+                        } else if (formData.genre_type.length == 0) {
+                          setmsg("Genre is required");
+                          setsnack(true);
                         } else {
                           const addbook = await api.Calls(
                             `book/`,
@@ -329,16 +347,21 @@ export default function Book() {
                           if (addbook.status == 201) {
                             handleTrigger();
                             setmsg("Book Added Successfully");
-                            setsnack(true)
+                            setsnack(true);
                             setexits(false);
                           } else {
                             setmsg(addbook.msg.response.data.message);
-                            setsnack(true)
+                            setsnack(true);
                           }
                         }
-                        // console.log(formData);
-                        setOpen(false);
                       }
+                      // console.log(formData);
+                      setFormData({ book_name: "" });
+                      setFormData({ book_isbn: "" });
+                      setFormData({ book_quantity: "" });
+                      setFormData({ book_author: "" });
+                      setFormData({ genre_type: "" });
+                      setOpen(false);
                     } catch (error) {
                       console.log(error);
                     }
@@ -351,10 +374,10 @@ export default function Book() {
           </div>
         </div>
       )}
-      <Snackbar open={snack} autoHideDuration={6000} onClose={handleSnackClose}>
+      <Snackbar open={snack} autoHideDuration={2000} onClose={handleSnackClose}>
         <Alert
           onClose={handleSnackClose}
-          severity="error"
+          severity="info"
           sx={{ width: "100%" }}
         >
           {msg}

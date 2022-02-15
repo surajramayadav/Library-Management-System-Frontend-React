@@ -11,6 +11,8 @@ import {
   TextareaAutosize,
   TextField,
 } from "@material-ui/core";
+import CloseIcon from '@material-ui/icons/Close';
+
 import Colors from "../../../utils/styles/colors";
 import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
@@ -68,7 +70,7 @@ export default function SuperAdmin() {
   const [formData, setFormData] = useState({
     admin_username: "",
     admin_role: "",
-    admin_password: "",
+    admin_password: "123456",
   });
 
   const checkBookExits = async (e) => {
@@ -191,8 +193,18 @@ export default function SuperAdmin() {
               aria-labelledby="alert-dialog-title"
               aria-describedby="alert-dialog-description"
             >
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <DialogTitle id="alert-dialog-title">Add Admin</DialogTitle>
+             <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginRight: 20,
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <DialogTitle id="alert-dialog-title">Add Admin</DialogTitle>
+                </div>
+                <CloseIcon onClick={()=>handleClose()} />
               </div>
 
               <DialogContent>
@@ -231,7 +243,7 @@ export default function SuperAdmin() {
                     // autoComplete="phone"
                     onChange={handleChange}
                   />{" "}
-                  <TextField
+                  {/* <TextField
                     style={{ marginTop: 20 }}
                     variant="outlined"
                     required
@@ -244,7 +256,7 @@ export default function SuperAdmin() {
                     // defaultValue={data && data[2]}
                     // autoComplete="phone"
                     onChange={handleChange}
-                  />
+                  /> */}
                 </div>
               </DialogContent>
               <div style={{ display: "flex", justifyContent: "center" }}>
@@ -288,6 +300,8 @@ export default function SuperAdmin() {
                         }
 
                         setOpen(false);
+                        setFormData({admin_username:""})
+                        setFormData({admin_role:""})
                       }
                     } catch (error) {
                       console.log(error);
@@ -301,10 +315,10 @@ export default function SuperAdmin() {
           </div>
         </div>
       )}
-      <Snackbar open={snack} autoHideDuration={6000} onClose={handleSnackClose}>
+      <Snackbar open={snack} autoHideDuration={2000} onClose={handleSnackClose}>
         <Alert
           onClose={handleSnackClose}
-          severity="error"
+          severity="info"
           sx={{ width: "100%" }}
         >
           {msg}

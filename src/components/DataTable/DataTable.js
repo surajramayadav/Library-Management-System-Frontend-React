@@ -16,6 +16,8 @@ import {
   TextareaAutosize,
   TextField,
 } from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
+
 import { setadminData } from "../../redux/slice/loginSlice";
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -321,10 +323,12 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
                     <Button
                       color="secondary"
                       size="large"
+                      disabled={d[0] == adminData.admin_id ? true : false}
                       onClick={async () => {
                         try {
                           switch (title) {
                             case "Admin":
+                              // console.log("call")
                               const getAdminData = await api.Calls(
                                 `admin/${d[0]}`,
                                 "DELETE"
@@ -409,8 +413,18 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
           >
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginRight: 20,
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
+              </div>
+              <CloseIcon onClick={() => handleClose()} />
             </div>
 
             <DialogContent>
@@ -497,9 +511,21 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
           >
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
-            </div>
+            <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginRight: 20,
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
+                </div>
+                <CloseIcon onClick={()=>handleClose()} />
+              </div>
+
+
 
             <DialogContent>
               <div className={classes.root} autoComplete="off">
@@ -574,9 +600,20 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
           >
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
-            </div>
+            <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginRight: 20,
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
+                </div>
+                <CloseIcon onClick={()=>handleClose()} />
+              </div>
+
 
             <DialogContent>
               <div className={classes.root} autoComplete="off">
@@ -679,10 +716,10 @@ export default function DataTable({ rows, columns, title, handleTrigger }) {
           </Dialog>
         </div>
       )}
-      <Snackbar open={snack} autoHideDuration={6000} onClose={handleSnackClose}>
+      <Snackbar open={snack} autoHideDuration={2000} onClose={handleSnackClose}>
         <Alert
           onClose={handleSnackClose}
-          severity="error"
+          severity="success"
           sx={{ width: "100%" }}
         >
           {msg}

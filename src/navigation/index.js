@@ -26,6 +26,7 @@ import ReturnBook from "../pages/admin/returnBook";
 import IssueUser from "../pages/admin/issueABook/issueUser";
 import AdminChangePassword from "../pages/admin/changePassword";
 import AdminProtectedRoute from "./adminProtectedRoute";
+import ResetPassword from "../pages/user/resetPassword";
 
 export default function Navigation() {
   const login = useSelector((state) => state.login);
@@ -36,6 +37,7 @@ export default function Navigation() {
       <Switch>
         <Route exact path="/" component={UserLogin} />
         <Route exact path="/admin" component={AdminLogin} />
+        <Route exact path="/user/reset/:key?" component={ResetPassword} />
 
         {userLogin && (
           <>
@@ -57,7 +59,7 @@ export default function Navigation() {
                     path="/user/profile/change-password"
                     component={ChangePassword}
                   />
-                   <Route render={() => <Redirect to={{ pathname: "/user/home" }} />} />
+                   {/* <Route render={() => <Redirect to={{ pathname: "/user/home" }} />} /> */}
                 </div>
               </div>
             </div>
@@ -120,7 +122,7 @@ export default function Navigation() {
           </>
         )}
 
-        <Route render={() => <Redirect to={{ pathname: "/" }} />} />
+        {/* <Route render={() => <Redirect to={{ pathname: "/" }} />} /> */}
       </Switch>
     </Router>
   );
